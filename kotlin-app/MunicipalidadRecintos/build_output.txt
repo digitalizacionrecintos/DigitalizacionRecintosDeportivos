@@ -1,0 +1,43 @@
+Calculating task graph as no cached configuration is available for tasks: :composeApp:compileCommonMainKotlinMetadata
+Type-safe project accessors is an incubating feature.
+
+> Configure project :composeApp
+e: file:///C:/Users/danie/Downloads/MunicipalidadRecintos/MunicipalidadRecintos/composeApp/build.gradle.kts:13:24: Type mismatch: inferred type is String but ResourcesExtension.ResourceClassGeneration was expected
+w: Missing `androidTarget()` in Kotlin Multiplatform Project
+Missing `androidTarget()` Kotlin target in multiplatform project 'composeApp (:composeApp)'.
+The Android Gradle plugin was applied without creating a corresponding `androidTarget()` Kotlin Target
+plugins {
+    id("com.android.application")
+    kotlin("multiplatform")
+}
+
+kotlin {
+    androidTarget() // <-- please register this Android target
+}
+Solution:
+Please register the Android target.
+
+
+[Incubating] Problems report is available at: file:///C:/Users/danie/Downloads/MunicipalidadRecintos/MunicipalidadRecintos/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'C:\Users\danie\Downloads\MunicipalidadRecintos\MunicipalidadRecintos\composeApp\build.gradle.kts' line: 13
+
+* What went wrong:
+Script compilation error:
+
+  Line 13:     generateResClass = "always"
+                                  ^ Type mismatch: inferred type is String but ResourcesExtension.ResourceClassGeneration was expected
+
+1 error
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 4s
+Configuration cache entry stored.
