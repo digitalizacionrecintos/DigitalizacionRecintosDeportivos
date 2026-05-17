@@ -11,6 +11,7 @@ import org.example.project.data.remote.dto.InscriptionStatus
 import org.example.project.data.remote.dto.LoginRequest
 import org.example.project.data.remote.dto.ManagerEventDTO
 import org.example.project.data.remote.dto.ManagerEventWithAttendeesDTO
+import org.example.project.data.remote.dto.MultiInscriptionRequest
 import org.example.project.data.remote.dto.RegisterRequest
 import org.example.project.data.remote.dto.UserDTO
 

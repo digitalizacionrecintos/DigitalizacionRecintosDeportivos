@@ -63,21 +63,20 @@ public class ServicioRecintoImpl implements ServicioRecinto {
                 recinto.setCapacidad(editarRecintoDTO.getCapacidad());
             if (editarRecintoDTO.getCoordenadasGPS() != null)
                 recinto.setCoordenadasGPS(editarRecintoDTO.getCoordenadasGPS());
-
             if (editarRecintoDTO.getEstado() != null) {
                 String nuevoEstado = editarRecintoDTO.getEstado();
                 if (!"ACTIVO".equals(nuevoEstado) && !"INACTIVO".equals(nuevoEstado)) {
                     throw new RuntimeException("El estado solo puede ser ACTIVO o INACTIVO");
                 }
-
                 if ("INACTIVO".equals(nuevoEstado)) {
 
-                    boolean tieneEventosDisponibles = repositorioEvento.existsByRecintoAndEstado(recinto, "DISPONIBLE");
-                    if (tieneEventosDisponibles) {
+                    Long cantidad_eventos_activos = repositorioEvento.countEventosActivosPorRecinto(id);
+                    
+                    if (cantidad_eventos_activos > 0)
                         throw new RuntimeException(
-                                "No se puede desactivar el recinto porque tiene eventos disponibles");
-                    }
-                }
+                                "No se puede desactivar el recinto porque tiene eventos activos");
+                        }
+                    
                 recinto.setEstado(nuevoEstado);
             }
 

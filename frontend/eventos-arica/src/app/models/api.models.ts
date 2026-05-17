@@ -12,6 +12,8 @@ export interface CrearEventoDTO {
     encargadoId: number;
     imagen: string;
     imagenUrl?: string;
+    cursoId?: number;
+    maximoPorInscripcion?: number;
 }
 
 export interface EditarEventoDTO {
@@ -27,6 +29,8 @@ export interface EditarEventoDTO {
     categoriaId: number;
     imagen: string;
     imagenUrl?: string;
+    cursoId?: number;
+    maximoPorInscripcion?: number;
 }
 
 export interface EventoDTO {
@@ -47,12 +51,17 @@ export interface EventoDTO {
     imagen: string;
     imagenUrl?: string;
 
+    maximoPorInscripcion?: number;
+
     recinto?: RecintoDTO;
     encargado?: any;
     categoria?: CategoriaDTO;
 
     inscritos?: number;
     inscritosActuales?: number;
+
+    cursoId?: number;
+    cursoNombre?: string;
 }
 
 
@@ -206,4 +215,44 @@ export interface InscripcionDetalleDTO {
     usuario: UsuarioDTO;
     evento?: EventoDTO;
     fechaInscripcion: string;
+}
+
+// Course Statistics Interfaces
+export interface EstadisticasCursosDTO {
+    resumen: ResumenCursos;
+    cursosPopulares: CursoPopular[];
+    ocupacion: OcupacionCursos;
+    porCategoria: CategoriaCursos[];
+    tendenciaMensual: TendenciaMensual[];
+}
+
+export interface ResumenCursos {
+    totalCursos: number;
+    totalInscritos: number;
+    promedioInscritosPorCurso: number;
+}
+
+export interface CursoPopular {
+    nombre: string;
+    inscritos: number;
+    cupoMaximo: number;
+    porcentajeOcupacion: number;
+    categoria: string;
+}
+
+export interface OcupacionCursos {
+    llenos: number;
+    altaOcupacion: number;
+    bajaOcupacion: number;
+}
+
+export interface CategoriaCursos {
+    categoria: string;
+    inscritos: number;
+    cursos: number;
+}
+
+export interface TendenciaMensual {
+    mes: string;
+    inscritos: number;
 }

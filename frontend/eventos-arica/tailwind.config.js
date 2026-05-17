@@ -16,6 +16,7 @@ module.exports = {
         'arica-orange': '#F58742',
         'arica-coral': '#F56B6B',
         'arica-green': '#42C895',
+        'arica-form-inputs' : '#f8f8f4'
       },
     },
   },

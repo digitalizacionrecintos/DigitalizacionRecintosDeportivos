@@ -1,37 +1,51 @@
 package com.recintos.municipalidad.repository;
 
+import java.util.List;
 import com.recintos.municipalidad.model.Evento;
+import com.recintos.municipalidad.model.Usuario;
+import com.recintos.municipalidad.model.Recinto;
+import com.recintos.municipalidad.model.Curso;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
 
 public interface RepositorioEvento extends JpaRepository<Evento, Long> {
 
-  java.util.List<Evento> findByEstado(String estado);
+  List<Evento> findByCurso(Curso curso);
 
-  java.util.List<Evento> findByEncargado(com.recintos.municipalidad.model.Usuario encargado);
+  List<Evento> findByCursoIsNull();
 
-  boolean existsByRecintoAndEstado(com.recintos.municipalidad.model.Recinto recinto, String estado);
+  List<Evento> findByCursoIsNullAndEstado(String estado);
 
-  @org.springframework.data.jpa.repository.Query("SELECT COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio")
-  long countTotalEventos(@org.springframework.data.repository.query.Param("anio") Integer anio);
+  List<Evento> findByEstado(String estado);
 
-  @org.springframework.data.jpa.repository.Query("SELECT e.recinto.nombre, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.recinto.nombre")
-  java.util.List<Object[]> countEventosByRecinto(@org.springframework.data.repository.query.Param("anio") Integer anio);
+  List<Evento> findByEncargado(Usuario encargado);
 
-  @org.springframework.data.jpa.repository.Query("SELECT e.categoria.nombre, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.categoria.nombre")
-  java.util.List<Object[]> countEventosByCategoria(
-      @org.springframework.data.repository.query.Param("anio") Integer anio);
+  boolean existsByRecintoAndEstado(Recinto recinto, String estado);
 
-  @org.springframework.data.jpa.repository.Query("SELECT MONTH(e.fechaInicio), COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY MONTH(e.fechaInicio)")
-  java.util.List<Object[]> countEventosByMes(@org.springframework.data.repository.query.Param("anio") Integer anio);
+  @Query("SELECT COUNT(e) FROM Evento e Where estado != 'TERMINADO' and recinto.id = :recintoId")
+  long countEventosActivosPorRecinto(@Param("recintoId") Long recintoId);
 
-  @org.springframework.data.jpa.repository.Query("SELECT YEAR(e.fechaInicio), COUNT(e) FROM Evento e GROUP BY YEAR(e.fechaInicio)")
-  java.util.List<Object[]> countEventosByAnio();
+  @Query("SELECT COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio")
+  long countTotalEventos(@Param("anio") Integer anio);
 
-  @org.springframework.data.jpa.repository.Query("SELECT e.fechaInicio, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.fechaInicio")
-  java.util.List<Object[]> countEventosByDia(@org.springframework.data.repository.query.Param("anio") Integer anio);
+  @Query("SELECT e.recinto.nombre, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.recinto.nombre")
+  List<Object[]> countEventosByRecinto(@Param("anio") Integer anio);
 
-  @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT MONTH(e.fechaInicio)) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio")
-  long countMesesConEventos(@org.springframework.data.repository.query.Param("anio") Integer anio);
+  @Query("SELECT e.categoria.nombre, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.categoria.nombre")
+  List<Object[]> countEventosByCategoria(
+      @Param("anio") Integer anio);
+
+  @Query("SELECT MONTH(e.fechaInicio), COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY MONTH(e.fechaInicio)")
+  List<Object[]> countEventosByMes(@Param("anio") Integer anio);
+
+  @Query("SELECT YEAR(e.fechaInicio), COUNT(e) FROM Evento e GROUP BY YEAR(e.fechaInicio)")
+  List<Object[]> countEventosByAnio();
+
+  @Query("SELECT e.fechaInicio, COUNT(e) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio GROUP BY e.fechaInicio")
+  List<Object[]> countEventosByDia(@Param("anio") Integer anio);
+
+  @Query("SELECT COUNT(DISTINCT MONTH(e.fechaInicio)) FROM Evento e WHERE :anio IS NULL OR YEAR(e.fechaInicio) = :anio")
+  long countMesesConEventos(@Param("anio") Integer anio);
 }

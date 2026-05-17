@@ -1,5 +1,6 @@
 package com.recintos.municipalidad.service;
 
+import com.recintos.municipalidad.controller.dto.HistorialUsuarioDTO;
 import com.recintos.municipalidad.controller.dto.RegistroUsuarioDTO;
 import com.recintos.municipalidad.controller.dto.ResponseUsuarioDTO;
 
@@ -12,8 +13,7 @@ public interface ServicioUsuario {
 
         public java.util.List<com.recintos.municipalidad.model.Usuario> listarEncargados();
 
-        public java.util.List<com.recintos.municipalidad.controller.dto.HistorialInscripcionDTO> obtenerHistorialInscripciones(
-                        Long idUsuario);
+        public HistorialUsuarioDTO obtenerHistorialInscripciones(Long idUsuario);
 
         public void guardarTokenFCM(Long idUsuario, String token);
 

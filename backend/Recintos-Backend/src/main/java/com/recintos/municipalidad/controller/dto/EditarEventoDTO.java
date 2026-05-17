@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class EditarEventoDTO {
 
@@ -31,4 +29,8 @@ public class EditarEventoDTO {
     private String publicoObjetivo;
 
     private Long categoriaId;
+
+    private Integer maximoPorInscripcion;
+
+    private Long cursoId;
 }

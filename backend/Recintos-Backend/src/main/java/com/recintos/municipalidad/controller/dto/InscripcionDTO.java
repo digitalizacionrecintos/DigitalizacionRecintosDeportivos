@@ -4,6 +4,9 @@ import lombok.Data;
 
 @Data
 public class InscripcionDTO {
-    private Long idUsuario;
+    private String nombre;
+    private String apellidos;
+    private Integer edad;
+    private Long idTutor;
     private Long idEvento;
 }

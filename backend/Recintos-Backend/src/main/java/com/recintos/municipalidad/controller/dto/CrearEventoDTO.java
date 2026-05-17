@@ -32,4 +32,8 @@ public class CrearEventoDTO {
 
     private Long encargadoId;
 
+    private Integer maximoPorInscripcion;
+
+    private Long cursoId;
+
 }

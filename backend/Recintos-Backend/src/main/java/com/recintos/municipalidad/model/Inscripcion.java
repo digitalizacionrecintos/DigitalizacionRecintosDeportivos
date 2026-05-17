@@ -15,16 +15,23 @@ public class Inscripcion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idInscripcion;
 
-    private LocalDateTime fechaHoraRegistro;
-    private String estadoAsistencia;
+    private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "idUsuario", nullable = false)
-    private Usuario usuario;
+    private String apellido;
+    
+    private Integer edad;
+
+    private LocalDateTime fechaHoraRegistro;
+    
+    private String estadoAsistencia;
 
     @ManyToOne
     @JoinColumn(name = "idEvento", nullable = false)
     private Evento evento;
+
+    @ManyToOne
+    @JoinColumn(name = "idTutor")
+    private Usuario tutor;
 
     @ManyToOne
     @JoinColumn(name = "idEncargado")

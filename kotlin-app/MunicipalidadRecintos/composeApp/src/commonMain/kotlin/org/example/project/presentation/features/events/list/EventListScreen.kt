@@ -47,10 +47,8 @@ class EventListScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-
                 val viewModel = remember { EventListViewModel() }
                 val state by viewModel.state.collectAsState()
-
                 EventListScreenContent(
                         state = state,
                         onEvent = { event ->
@@ -82,9 +80,7 @@ fun EventListScreenContent(
                         0.55f to Color(0xFF4BAAEA),
                         0.92f to Color(0xFF3DBAD7)
                 )
-
         Column(modifier = Modifier.fillMaxSize()) {
-
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()

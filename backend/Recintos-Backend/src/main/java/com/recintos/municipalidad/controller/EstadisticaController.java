@@ -1,6 +1,7 @@
 package com.recintos.municipalidad.controller;
 
 import com.recintos.municipalidad.controller.dto.EstadisticasResponseDTO;
+import com.recintos.municipalidad.controller.dto.EstadisticasCursosDTO;
 import com.recintos.municipalidad.service.ServicioEstadistica;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,4 +24,12 @@ public class EstadisticaController {
         EstadisticasResponseDTO estadisticas = servicioEstadistica.obtenerEstadisticas(anio);
         return new ResponseEntity<>(estadisticas, HttpStatus.OK);
     }
+
+    @GetMapping("/cursos")
+    public ResponseEntity<EstadisticasCursosDTO> obtenerEstadisticasCursos(
+            @RequestParam(required = false) Integer anio) {
+        EstadisticasCursosDTO estadisticas = servicioEstadistica.obtenerEstadisticasCursos(anio);
+        return new ResponseEntity<>(estadisticas, HttpStatus.OK);
+    }
 }
+

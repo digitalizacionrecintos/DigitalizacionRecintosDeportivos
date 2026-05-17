@@ -70,7 +70,6 @@ export class WebsocketService implements OnDestroy {
             return;
         }
 
-
         if (this.eventSubscriptions.has(eventoId)) {
             console.log(` Ya suscrito al evento ${eventoId}`);
             return;
@@ -84,7 +83,6 @@ export class WebsocketService implements OnDestroy {
                 try {
                     const body = JSON.parse(message.body);
                     console.log(` Mensaje recibido para evento ${eventoId}:`, body);
-
 
                     let inscritosActuales: number;
 

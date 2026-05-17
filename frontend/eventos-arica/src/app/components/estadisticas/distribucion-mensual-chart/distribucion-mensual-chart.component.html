@@ -1,0 +1,97 @@
+<div class="bg-white rounded-xl shadow-sm p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <svg class="w-4 h-4" style="color: #051C9C;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+          </svg>
+          <h2 class="text-sm font-bold" style="color: #051C9C;">Distribución Mensual</h2>
+          <button
+            (click)="abrirModalInfo('Distribución Mensual', 'Visualiza la cantidad total de eventos realizados en cada mes del año seleccionado. Permite identificar los meses con mayor actividad.')"
+            class="ml-auto text-gray-400 hover:text-arica-blue transition-colors focus:outline-none"
+            title="Más información">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </button>
+        </div>
+
+
+        <div class="relative h-48 mb-6 bg-gray-50 rounded-lg p-4">
+          <svg class="w-full h-full" viewBox="0 0 360 120" preserveAspectRatio="none">
+
+            <line x1="0" y1="30" x2="360" y2="30" stroke="#e5e7eb" stroke-width="1" />
+            <line x1="0" y1="60" x2="360" y2="60" stroke="#e5e7eb" stroke-width="1" />
+            <line x1="0" y1="90" x2="360" y2="90" stroke="#e5e7eb" stroke-width="1" />
+
+
+            <polyline [attr.points]="getLineChartPoints()" fill="none" stroke="#00AAC8" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round" />
+
+
+            <polygon [attr.points]="getLineChartAreaPoints()" fill="url(#areaGradient)" opacity="0.3" />
+
+
+            <defs>
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#00AAC8;stop-opacity:0.5" />
+                <stop offset="100%" style="stop-color:#00AAC8;stop-opacity:0" />
+              </linearGradient>
+            </defs>
+
+
+            <g *ngFor="let mes of mesesStats; let i = index">
+              <circle [attr.cx]="getPointX(i)" [attr.cy]="getPointY(mes.cantidad)" r="4" fill="#0045AB" stroke="white"
+                stroke-width="2" />
+            </g>
+          </svg>
+
+
+          <div class="flex justify-between mt-2 text-xs text-gray-500">
+            <span *ngFor="let mes of mesesStats">{{ mes.mes.substring(0, 3) }}</span>
+          </div>
+        </div>
+
+
+        <div class="space-y-2 max-h-64 overflow-y-auto pr-2">
+          <div *ngFor="let mes of mesesStats; let i = index"
+            class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="font-semibold text-gray-700 w-24">{{ mes.mes }}</span>
+              <span class="text-lg font-bold text-arica-blue">{{ mes.cantidad }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+
+              <div *ngIf="i > 0" class="flex items-center gap-1">
+                <span class="text-sm font-bold" [class.text-green-500]="mes.cantidad > mesesStats[i-1].cantidad"
+                  [class.text-red-500]="mes.cantidad < mesesStats[i-1].cantidad"
+                  [class.text-gray-400]="mes.cantidad === mesesStats[i-1].cantidad">
+                  {{ mes.cantidad > mesesStats[i-1].cantidad ? '+' : '' }}{{ mes.cantidad - mesesStats[i-1].cantidad }}
+                </span>
+                <svg *ngIf="mes.cantidad > mesesStats[i-1].cantidad" class="w-4 h-4 text-green-500" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+                <svg *ngIf="mes.cantidad < mesesStats[i-1].cantidad" class="w-4 h-4 text-red-500" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                <svg *ngIf="mes.cantidad === mesesStats[i-1].cantidad" class="w-4 h-4 text-gray-400" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+              </div>
+              <span *ngIf="i === 0" class="text-xs text-gray-400">--</span>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="mt-6 p-4 bg-gradient-to-br from-arica-blue to-blue-600 rounded-lg">
+          <div class="text-center">
+            <p class="text-white/80 text-sm mb-1">Mes con más eventos</p>
+            <p class="text-2xl font-bold text-white">{{ mesMasEventos.mes }}</p>
+            <p class="text-white/90 text-lg">{{ mesMasEventos.cantidad }} eventos</p>
+          </div>
+        </div>
+      </div>

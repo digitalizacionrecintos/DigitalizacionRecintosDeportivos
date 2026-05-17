@@ -4,7 +4,7 @@ import com.recintos.municipalidad.controller.dto.CrearEventoDTO;
 import com.recintos.municipalidad.controller.dto.EditarEventoDTO;
 import com.recintos.municipalidad.controller.dto.ResponseEventoDTO;
 import com.recintos.municipalidad.model.Evento;
-
+import com.recintos.municipalidad.controller.dto.EventoConAsistentesDTO;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +26,11 @@ public interface ServicioEvento {
 
     public com.recintos.municipalidad.controller.dto.CupoEventoDTO obtenerCupo(Long idEvento);
 
-    java.util.List<com.recintos.municipalidad.controller.dto.EventoConAsistentesDTO> listarEventosPorEncargado(
-            Long idEncargado);
+    public List<EventoConAsistentesDTO> listarEventosPorEncargado(Long idEncargado);
 
     public Evento asignarEncargado(Long idEvento, Long idEncargado);
+
+    public List<Evento> listarEventosDisponibles();
+
+    public List<Evento> listarEventosSinCurso();
 }

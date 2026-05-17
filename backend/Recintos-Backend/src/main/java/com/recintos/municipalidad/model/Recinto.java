@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "recinto")
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Recinto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

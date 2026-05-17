@@ -33,6 +33,8 @@ public class Evento {
 
     private String estado;
 
+    private Integer maximoPorInscripcion;
+
     @ManyToOne
     @JoinColumn(name = "idEncargado", nullable = true)
     private Usuario encargado;
@@ -51,4 +53,8 @@ public class Evento {
 
     @Transient
     private Long inscritos;
+
+    @ManyToOne
+    @JoinColumn(name = "idCurso", nullable = true)
+    private Curso curso;
 }

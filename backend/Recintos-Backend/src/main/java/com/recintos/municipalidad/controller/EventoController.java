@@ -25,6 +25,12 @@ public class EventoController {
         return new ResponseEntity<>(eventoCreado, HttpStatus.CREATED);
     }
 
+    @GetMapping("/avaible")
+    public ResponseEntity<List<Evento>> obtenerEventosDisponibles() {
+        List<Evento> eventos = servicioEvento.listarEventosSinCurso();
+        return new ResponseEntity<>(eventos, HttpStatus.OK);
+    }
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<Object> editarEvento(
             @PathVariable Long id,
@@ -105,4 +111,5 @@ public class EventoController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 }

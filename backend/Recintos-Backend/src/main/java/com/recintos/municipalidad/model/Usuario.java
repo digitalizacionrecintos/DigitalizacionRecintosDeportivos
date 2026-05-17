@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "usuarios")
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Usuario {
 
     @Id
@@ -37,7 +38,7 @@ public class Usuario {
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Evento> eventosGestionados;
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "tutor")
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Inscripcion> inscripciones;
 

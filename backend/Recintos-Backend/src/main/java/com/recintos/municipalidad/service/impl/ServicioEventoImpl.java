@@ -35,6 +35,9 @@ public class ServicioEventoImpl implements ServicioEvento {
   private com.recintos.municipalidad.repository.RepositorioCategoria repositorioCategoria;
 
   @Autowired
+  private com.recintos.municipalidad.repository.RepositorioCurso repositorioCurso;
+
+  @Autowired
   private EventoMapper mapper;
 
   @Autowired
@@ -43,6 +46,16 @@ public class ServicioEventoImpl implements ServicioEvento {
   @Override
   public List<Evento> listarEventos() {
     List<Evento> eventos = repositorioEvento.findAll();
+    eventos.forEach(evento -> {
+      long count = repositorioInscripcion.countByEvento(evento);
+      evento.setInscritos(count);
+    });
+    return eventos;
+  }
+
+  @Override
+  public List<Evento> listarEventosSinCurso() {
+    List<Evento> eventos = repositorioEvento.findByCursoIsNullAndEstado("DISPONIBLE");
     eventos.forEach(evento -> {
       long count = repositorioInscripcion.countByEvento(evento);
       evento.setInscritos(count);
@@ -85,6 +98,11 @@ public class ServicioEventoImpl implements ServicioEvento {
       categoriaOpt.ifPresent(nuevoEvento::setCategoria);
     }
 
+    if (eventoDTO.getCursoId() != null) {
+        Optional<com.recintos.municipalidad.model.Curso> cursoOpt = repositorioCurso.findById(eventoDTO.getCursoId());
+        cursoOpt.ifPresent(nuevoEvento::setCurso);
+    }
+
     Evento eventoGuardado = repositorioEvento.save(nuevoEvento);
     return mapper.toDTO(eventoGuardado);
   }
@@ -93,6 +111,7 @@ public class ServicioEventoImpl implements ServicioEvento {
   public Evento editarEvento(Long id, EditarEventoDTO editarEventoDTO) {
     Optional<Evento> eventoOpt = repositorioEvento.findById(id);
     if (eventoOpt.isPresent()) {
+
       Evento evento = eventoOpt.get();
       if (editarEventoDTO.getDescripcion() != null)
         evento.setDescripcion(editarEventoDTO.getDescripcion());
@@ -123,14 +142,21 @@ public class ServicioEventoImpl implements ServicioEvento {
         categoriaOpt.ifPresent(evento::setCategoria);
       }
 
+      if (editarEventoDTO.getCursoId() != null) {
+          Optional<com.recintos.municipalidad.model.Curso> cursoOpt = repositorioCurso.findById(editarEventoDTO.getCursoId());
+          cursoOpt.ifPresent(evento::setCurso);
+      }
+
       Evento eventoGuardado = repositorioEvento.save(evento);
 
       if (eventoGuardado.getInscripciones() != null) {
         for (com.recintos.municipalidad.model.Inscripcion inscripcion : eventoGuardado.getInscripciones()) {
-          servicioNotificacion.enviarNotificacion(
-              inscripcion.getUsuario(),
-              "El evento '" + eventoGuardado.getTitulo() + "' ha sido modificado.",
-              eventoGuardado.getIdEvento());
+          if (inscripcion.getTutor() != null) {
+            servicioNotificacion.enviarNotificacion(
+                inscripcion.getTutor(),
+                "El evento '" + eventoGuardado.getTitulo() + "' ha sido modificado.",
+                eventoGuardado.getIdEvento());
+          }
         }
       }
 
@@ -160,10 +186,12 @@ public class ServicioEventoImpl implements ServicioEvento {
 
       if (eventoGuardado.getInscripciones() != null) {
         for (com.recintos.municipalidad.model.Inscripcion inscripcion : eventoGuardado.getInscripciones()) {
-          servicioNotificacion.enviarNotificacion(
-              inscripcion.getUsuario(),
-              "El estado del evento '" + eventoGuardado.getTitulo() + "' ha cambiado a " + estado + ".",
-              eventoGuardado.getIdEvento());
+          if (inscripcion.getTutor() != null) {
+            servicioNotificacion.enviarNotificacion(
+                inscripcion.getTutor(),
+                "El estado del evento '" + eventoGuardado.getTitulo() + "' ha cambiado a " + estado + ".",
+                eventoGuardado.getIdEvento());
+          }
         }
       }
 
@@ -212,9 +240,9 @@ public class ServicioEventoImpl implements ServicioEvento {
       List<com.recintos.municipalidad.controller.dto.AsistenteDTO> asistentes = evento.getInscripciones().stream()
           .map(inscripcion -> new com.recintos.municipalidad.controller.dto.AsistenteDTO(
               inscripcion.getIdInscripcion(),
-              inscripcion.getUsuario().getIdUsuario(),
-              inscripcion.getUsuario().getNombre() + " " + inscripcion.getUsuario().getApellido(),
-              inscripcion.getUsuario().getCorreo(),
+              inscripcion.getTutor() != null ? inscripcion.getTutor().getIdUsuario() : null,
+              inscripcion.getNombre() + " " + inscripcion.getApellido(),
+              inscripcion.getTutor() != null ? inscripcion.getTutor().getCorreo() : "Sin correo",
               inscripcion.getEstadoAsistencia()))
           .collect(java.util.stream.Collectors.toList());
 
@@ -284,5 +312,14 @@ public class ServicioEventoImpl implements ServicioEvento {
         }
       }
     }
+  }
+
+  public List<Evento> listarEventosDisponibles() {
+    List<Evento> eventos = repositorioEvento.findByEstado("DISPONIBLE");
+    eventos.forEach(evento -> {
+      long count = repositorioInscripcion.countByEvento(evento);
+      evento.setInscritos(count);
+    });
+    return eventos;
   }
 }

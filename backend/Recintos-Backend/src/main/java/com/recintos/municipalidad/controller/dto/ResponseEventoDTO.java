@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class ResponseEventoDTO {
 
-    private int IdEvento;
+    private Long idEvento;
 
     private String estado;
 
@@ -16,11 +16,14 @@ public class ResponseEventoDTO {
 
     private String descripcion;
 
-    private LocalDateTime hora;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
+    private LocalDateTime horaInicio;
 
-    private LocalDate fechaIniceditio;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "HH:mm:ss")
+    private LocalDateTime horaFin;
 
-    private LocalDate fechaFin;
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fechaInicio;
 
     private CategoriaDTO categoria;
 
@@ -28,4 +31,19 @@ public class ResponseEventoDTO {
 
     private String publicoObjetivo;
 
+    private Long cursoId;
+    
+    private String cursoNombre;
+
+    private Long inscritosActuales;
+
+    private ResponseRecintoDTO recinto;
+
+    private ResponseUsuarioDTO encargado;
+
+    private Long encargadoId;
+
+    private Long categoriaId;
+
+    private Integer maximoPorInscripcion;
 }

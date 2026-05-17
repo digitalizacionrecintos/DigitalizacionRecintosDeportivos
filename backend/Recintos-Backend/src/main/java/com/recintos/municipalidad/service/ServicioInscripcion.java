@@ -1,12 +1,20 @@
 package com.recintos.municipalidad.service;
 
+import com.recintos.municipalidad.controller.dto.*;
 import com.recintos.municipalidad.model.Inscripcion;
 
+import java.util.List;
+
 public interface ServicioInscripcion {
-    Inscripcion inscribirUsuario(Long idUsuario, Long idEvento);
+    Inscripcion inscribirUsuario(String nombre, String apellido, Integer edad, Long idTutor, Long idEvento);
 
-    com.recintos.municipalidad.controller.dto.EstadoInscripcionDTO verificarEstadoInscripcion(Long idUsuario,
-            Long idEvento);
+    List<InscripcionBatchResponseDTO> inscribirUsuariosMasivo(List<InscripcionDTO> inscripciones);
 
-    void actualizarAsistenciaMasiva(Long idEvento, java.util.List<Long> idsPresentes);
+    SesionDTO verificarEstadoInscripcion(Long idEvento, Long idUsuario);
+
+    void actualizarAsistenciaMasiva(Long idEvento, List<Long> idsPresentes);
+
+    void inscribirUsuariosACurso(InscripcionCursoMasivaDTO inscripciones);
+
+    InscripcionEstadoCursoResponseDTO verificarEstadoInscripcionACurso(Long idCurso, Long idUsuario);
 }

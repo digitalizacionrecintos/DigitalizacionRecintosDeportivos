@@ -6,285 +6,33 @@ import { EventosService } from '../../services/eventos.service';
 import { EncargadosService } from '../../services/encargados.service';
 import { CategoriasService } from '../../services/categorias.service';
 import { StorageService } from '../../services/storage.service';
-import { EncargadoDTO, Usuario, EditarEventoDTO, CategoriaDTO } from '../../models/api.models';
+import { EncargadoDTO, Usuario, EditarEventoDTO, CategoriaDTO, RecintoDTO } from '../../models/api.models';
+import { Curso } from '../../models/curso';
 import { environment } from '../../../environments/environment';
+import { RecintosService } from '../../services/recintos.service';
+import { CursoService } from '../../services/curso.service';
 
 @Component({
   selector: 'app-editar-evento',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="ml-64 min-h-screen bg-gradient-to-br from-arica-blue via-blue-700 to-cyan-500 p-8">
-      <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl overflow-hidden">
-
-        <div class="h-2 overflow-hidden">
-          <img src="images/cuatro_colores.png" alt="" class="w-full h-full object-cover">
-        </div>
-
-        <div class="p-8">
-          <h1 class="text-3xl font-bold text-arica-blue mb-8 border-b-2 border-gray-200 pb-4">
-            Editar Evento
-          </h1>
-
-
-          <div *ngIf="cargando" class="text-center py-8">
-            <p class="text-gray-600">Cargando datos del evento...</p>
-          </div>
-
-          <div *ngIf="!cargando" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <div class="lg:col-span-2 space-y-6">
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Titulo</label>
-                <div class="flex items-center gap-2">
-                  <input
-                    type="text"
-                    [(ngModel)]="evento.titulo"
-                    [disabled]="!editando.titulo"
-                    [class.bg-gray-100]="!editando.titulo"
-                    class="flex-1 px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                  <button
-                    (click)="toggleEdit('titulo')"
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Descripcion</label>
-                <div class="flex items-start gap-2">
-                  <textarea
-                    [(ngModel)]="evento.descripcion"
-                    [disabled]="!editando.descripcion"
-                    [class.bg-gray-100]="!editando.descripcion"
-                    rows="4"
-                    class="flex-1 px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue resize-none"
-                  ></textarea>
-                  <button
-                    (click)="toggleEdit('descripcion')"
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Recinto</label>
-                <div class="flex items-center gap-2">
-                  <input
-                    type="text"
-                    [(ngModel)]="evento.recinto"
-                    [disabled]="!editando.recinto"
-                    [class.bg-gray-100]="!editando.recinto"
-                    class="flex-1 px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                  <button
-                    (click)="toggleEdit('recinto')"
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Encargado evento</label>
-                <div class="flex items-center gap-2">
-                  <select
-                    [(ngModel)]="evento.encargadoId"
-                    [disabled]="!editando.encargado"
-                    [class.bg-gray-100]="!editando.encargado"
-                    class="flex-1 px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                    <option [value]="null" disabled>Seleccionar encargado</option>
-                    <option *ngFor="let enc of encargados" [value]="enc.idUsuario">
-                      {{enc.nombre}} {{enc.apellido}}
-                    </option>
-                  </select>
-                  <button
-                    (click)="toggleEdit('encargado')"
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Categoría</label>
-                <div class="flex items-center gap-2">
-                  <select
-                    [(ngModel)]="evento.categoriaId"
-                    [disabled]="!editando.categoria"
-                    [class.bg-gray-100]="!editando.categoria"
-                    class="flex-1 px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                    <option [ngValue]="null" disabled>Seleccionar categoría</option>
-                    <option *ngFor="let cat of categorias" [ngValue]="cat.id">
-                      {{cat.nombre}}
-                    </option>
-                  </select>
-                  <button
-                    (click)="toggleEdit('categoria')"
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Fecha del Evento</label>
-                  <input
-                    type="date"
-                    [(ngModel)]="evento.fecha"
-                    class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Hora de Inicio</label>
-                  <input
-                    type="time"
-                    [(ngModel)]="evento.horaInicio"
-                    class="w-full px-4 py-3 bg-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Fecha de Fin (opcional)</label>
-                  <input
-                    type="date"
-                    [(ngModel)]="evento.fechaFin"
-                    class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Hora de Fin</label>
-                  <input
-                    type="time"
-                    [(ngModel)]="evento.horaFin"
-                    class="w-full px-4 py-3 bg-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-              </div>
-
-
-              <div class="pt-4">
-                <button
-                  (click)="guardarCambios()"
-                  class="w-full bg-arica-blue hover:bg-arica-blue-dark text-white font-bold py-3 px-8 rounded-lg transition-colors"
-                >
-                  Guardar
-                </button>
-              </div>
-            </div>
-
-
-            <div class="flex flex-col justify-between">
-              <div class="space-y-6">
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Imagen del evento</label>
-                  <div
-                    (click)="fileInput.click()"
-                    class="group relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl h-64 flex flex-col items-center justify-center mb-4 overflow-hidden cursor-pointer hover:border-arica-blue hover:bg-arica-blue/5 transition-all"
-                  >
-                    <img
-                      *ngIf="evento.imagen"
-                      [src]="getImagenUrl(evento.imagen)"
-                      alt="Evento"
-                      class="absolute inset-0 w-full h-full object-cover group-hover:opacity-60 transition-opacity"
-                    >
-
-                    <div class="flex flex-col items-center gap-3 z-10 p-6 text-center">
-                      <div class="bg-white p-4 rounded-full shadow-md group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8 text-gray-400 group-hover:text-arica-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div class="space-y-1">
-                        <p class="text-sm font-bold text-gray-700 group-hover:text-arica-blue">
-                          {{ evento.imagen ? 'Cambiar imagen' : 'Subir imagen' }}
-                        </p>
-                        <p class="text-xs text-gray-500">Haz clic para seleccionar un archivo</p>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    #fileInput
-                    type="file"
-                    accept="image/*"
-                    (change)="onFileSelected($event)"
-                    class="hidden"
-                  >
-                </div>
-
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2 text-center">
-                    Capacidad Maxima
-                  </label>
-                  <input
-                    type="text"
-                    [(ngModel)]="evento.capacidad"
-                    class="w-24 mx-auto block px-4 py-3 bg-cyan-400 text-white rounded-lg outline-none focus:ring-2 focus:ring-arica-blue text-center text-xl font-bold"
-                  >
-                </div>
-              </div>
-
-
-              <div class="pt-4">
-                <button
-                  (click)="volver()"
-                  class="w-full bg-arica-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-                >
-                  Salir
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './editar-evento.component.html',
   styles: []
 })
+
 export class EditarEventoComponent implements OnInit {
   encargados: Usuario[] = [];
   categorias: CategoriaDTO[] = [];
+  recintos: RecintoDTO[] = [];
+  cursos: Curso[] = [];
   eventoId: number | null = null;
   cargando = true;
-
+  hoy = new Date();
   evento = {
     titulo: '',
     descripcion: '',
     recinto: '',
+    recintoId: null as number | null,
     encargado: '',
     encargadoId: null as number | null,
     categoriaId: null as number | null,
@@ -294,7 +42,10 @@ export class EditarEventoComponent implements OnInit {
     horaInicio: '',
     horaFin: '',
     capacidad: '',
-    imagen: ''
+    imagen: '',
+    cursoId: null as number | null,
+    cursoNombre: '', // Add this
+    maximoPorInscripcion: null as number | null
   };
 
   selectedFile: File | null = null;
@@ -304,8 +55,42 @@ export class EditarEventoComponent implements OnInit {
     descripcion: false,
     recinto: false,
     encargado: false,
-    categoria: false
+    categoria: false,
+    curso: false
   };
+
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private eventosService: EventosService,
+    private encargadosService: EncargadosService,
+    private categoriasService: CategoriasService,
+    private cursoService: CursoService,
+    private storageService: StorageService,
+    private cdr: ChangeDetectorRef,
+    private recintosService: RecintosService
+  ) { }
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.eventoId = parseInt(id, 10);
+      this.cargarEvento();
+    }
+    this.cargarEncargados();
+    this.cargarCategorias();
+    this.cargarRecintos();
+    this.cargarCursos();
+  }
+
+  cargarCursos(): void {
+    this.cursoService.listarCursos().subscribe({
+      next: (data) => this.cursos = data,
+      error: (err) => console.error('Error cargando cursos', err)
+    });
+  }
+
 
   toggleEdit(campo: keyof typeof this.editando): void {
     this.editando[campo] = !this.editando[campo];
@@ -314,13 +99,11 @@ export class EditarEventoComponent implements OnInit {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-
       if (file.size > 5 * 1024 * 1024) {
         alert('La imagen no puede pesar más de 5MB');
         event.target.value = '';
         return;
       }
-
       this.selectedFile = file;
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -330,27 +113,6 @@ export class EditarEventoComponent implements OnInit {
     }
   }
 
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventosService: EventosService,
-    private encargadosService: EncargadosService,
-    private categoriasService: CategoriasService,
-    private storageService: StorageService,
-    private cdr: ChangeDetectorRef
-  ) { }
-
-  ngOnInit(): void {
-
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.eventoId = parseInt(id, 10);
-      this.cargarEvento();
-    }
-    this.cargarEncargados();
-    this.cargarCategorias();
-  }
 
   cargarEvento(): void {
     if (!this.eventoId) {
@@ -385,6 +147,7 @@ export class EditarEventoComponent implements OnInit {
           titulo: eventoDTO.titulo,
           descripcion: eventoDTO.descripcion,
           recinto: eventoDTO.recinto?.nombre || '',
+          recintoId: eventoDTO.recintoId || eventoDTO.recinto?.idRecinto || null,
           encargado: eventoDTO.encargado?.nombre
             ? `${eventoDTO.encargado.nombre} ${eventoDTO.encargado.apellido || ''}`.trim()
             : '',
@@ -396,7 +159,10 @@ export class EditarEventoComponent implements OnInit {
           horaInicio: horaInicioStr,
           horaFin: horaFinStr,
           capacidad: eventoDTO.cupoMaximo.toString(),
-          imagen: eventoDTO.imagen || eventoDTO.imagenUrl || ''
+          imagen: eventoDTO.imagen || eventoDTO.imagenUrl || '',
+          cursoId: eventoDTO.cursoId || (eventoDTO as any).curso?.idCurso || null,
+          cursoNombre: eventoDTO.cursoNombre || (eventoDTO as any).curso?.nombre || '',
+          maximoPorInscripcion: eventoDTO.maximoPorInscripcion || null
         };
 
         console.log(' Evento parseado:', this.evento);
@@ -414,6 +180,18 @@ export class EditarEventoComponent implements OnInit {
     });
   }
 
+
+  cargarRecintos(): void {
+    this.recintosService.getRecintos().subscribe({
+      next: (recintos) => {
+        this.recintos = recintos;
+        console.log('Recintos disponibles cargados:', recintos);
+      },
+      error: (error) => {
+        console.error('Error cargando recintos:', error);
+      }
+    });
+  }
   cargarEncargados(): void {
     this.encargadosService.getEncargados().subscribe({
       next: (encargados) => {
@@ -448,12 +226,15 @@ export class EditarEventoComponent implements OnInit {
       return;
     }
 
-
     if (this.evento.descripcion && this.evento.descripcion.length > 255) {
       alert('La descripción no puede exceder los 255 caracteres');
       return;
     }
 
+    if (this.evento.horaFin <= this.evento.horaInicio) {
+      alert('La hora de fin debe ser posterior a la hora de inicio');
+      return;
+    }
     if (this.selectedFile) {
       this.cargando = true;
       this.storageService.uploadImage(this.selectedFile).subscribe({
@@ -490,7 +271,9 @@ export class EditarEventoComponent implements OnInit {
       publicoObjetivo: 'Todos',
       categoriaId: this.evento.categoriaId!,
       imagen: this.evento.imagen || '',
-      imagenUrl: this.evento.imagen || ''
+      imagenUrl: this.evento.imagen || '',
+      cursoId: this.evento.cursoId || undefined,
+      maximoPorInscripcion: this.evento.maximoPorInscripcion || undefined // Add this
     };
 
     console.log(' Enviando al backend:', editarEventoDTO);
@@ -516,9 +299,6 @@ export class EditarEventoComponent implements OnInit {
     });
   }
 
-  modificarEvento() {
-  }
-
   getImagenUrl(imagen: string | undefined): string {
     if (!imagen) return '';
     if (imagen.startsWith('http') || imagen.startsWith('data:')) {
@@ -526,5 +306,12 @@ export class EditarEventoComponent implements OnInit {
     }
 
     return `${environment.apiUrl}/uploads/${imagen}`;
+  }
+
+  verificarFecha(horaInicio: string, horaFin: string): void {
+    if (horaFin <= horaInicio) {
+      alert('La hora de fin debe ser posterior a la hora de inicio');
+      this.evento.horaInicio = '';
+    }
   }
 }

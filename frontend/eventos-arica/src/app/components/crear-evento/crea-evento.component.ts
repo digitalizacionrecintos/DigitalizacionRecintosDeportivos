@@ -7,237 +7,16 @@ import { RecintosService } from '../../services/recintos.service';
 import { StorageService } from '../../services/storage.service';
 import { EncargadosService } from '../../services/encargados.service';
 import { CategoriasService } from '../../services/categorias.service';
+import { CursoService } from '../../services/curso.service';
 import { CrearEventoDTO, Usuario, CategoriaDTO } from '../../models/api.models';
+import { Curso } from '../../models/curso';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-crear-evento',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="ml-64 min-h-screen bg-gradient-to-br from-arica-blue via-blue-700 to-cyan-500 p-8">
-      <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl overflow-hidden">
-
-        <div class="h-2 overflow-hidden">
-          <img src="images/cuatro_colores.png" alt="" class="w-full h-full object-cover">
-        </div>
-
-        <div class="p-8">
-          <h1 class="text-3xl font-bold text-arica-blue mb-8 border-b-2 border-gray-200 pb-4">
-            Crear evento
-          </h1>
-
-
-          <div *ngIf="mensaje"
-               [class]="mensaje.tipo === 'error' ? 'bg-red-50 border-l-4 border-red-500' : 'bg-green-50 border-l-4 border-green-500'"
-               class="p-4 mb-6 rounded">
-            <p [class]="mensaje.tipo === 'error' ? 'text-red-700' : 'text-green-700'"
-               class="font-medium">{{mensaje.texto}}</p>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <div class="lg:col-span-2 space-y-6">
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Titulo</label>
-                <input
-                  type="text"
-                  [(ngModel)]="evento.titulo"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  placeholder="Ingrese el título del evento"
-                >
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Descripcion</label>
-                <textarea
-                  [(ngModel)]="evento.descripcion"
-                  rows="4"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue resize-none"
-                  placeholder="Ingrese la descripción"
-                ></textarea>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Recinto</label>
-                <select
-                  [(ngModel)]="evento.recintoId"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                >
-                  <option [value]="null" disabled>-- Seleccione recinto</option>
-                  <option *ngFor="let recinto of recintos" [value]="recinto.idRecinto">
-                    {{recinto.nombre}} - {{recinto.ubicacion}}
-                  </option>
-                </select>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Encargado evento</label>
-                <select
-                  [(ngModel)]="evento.encargadoId"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                >
-                  <option [value]="null" disabled>-- Seleccione encargado</option>
-                  <option *ngFor="let encargado of encargados" [value]="encargado.idUsuario">
-                    {{encargado.nombre}} {{encargado.apellido}}
-                  </option>
-                </select>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Categoría</label>
-                <select
-                  [(ngModel)]="evento.categoriaId"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                >
-                  <option [value]="null" disabled>-- Seleccione categoría</option>
-                  <option *ngFor="let categoria of categorias" [value]="categoria.id">
-                    {{categoria.nombre}}
-                  </option>
-                </select>
-              </div>
-
-
-              <div>
-                <label class="block text-arica-blue font-bold text-lg mb-2">Público Objetivo</label>
-                <input
-                  type="text"
-                  [(ngModel)]="evento.publicoObjetivo"
-                  placeholder="Ej: Adultos, Niños, Todos"
-                  class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                >
-              </div>
-
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Fecha del Evento</label>
-                  <input
-                    type="date"
-                    [(ngModel)]="evento.fecha"
-                    class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Hora de Inicio</label>
-                  <input
-                    type="time"
-                    [(ngModel)]="evento.horaInicio"
-                    class="w-full px-4 py-3 bg-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Fecha de Fin (opcional)</label>
-                  <input
-                    type="date"
-                    [(ngModel)]="evento.fechaFin"
-                    class="w-full px-4 py-3 bg-arica-cyan rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Hora de Fin</label>
-                  <input
-                    type="time"
-                    [(ngModel)]="evento.horaFin"
-                    class="w-full px-4 py-3 bg-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
-                  >
-                </div>
-              </div>
-
-
-              <div class="pt-4">
-                <button
-                  (click)="guardarEvento()"
-                  [disabled]="guardando"
-                  [class.opacity-50]="guardando"
-                  [class.cursor-not-allowed]="guardando"
-                  class="w-full bg-arica-blue hover:bg-arica-blue-dark text-white font-bold py-3 px-8 rounded-lg transition-colors"
-                >
-                  {{ guardando ? 'Guardando...' : 'Guardar' }}
-                </button>
-              </div>
-            </div>
-
-
-            <div class="flex flex-col justify-between">
-              <div class="space-y-6">
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2">Imagen del evento</label>
-                  <div
-                    (click)="fileInput.click()"
-                    class="group relative bg-gray-100 border-2 border-dashed border-gray-300 rounded-xl h-64 flex flex-col items-center justify-center mb-4 overflow-hidden cursor-pointer hover:border-arica-blue hover:bg-arica-blue/5 transition-all"
-                  >
-                    <img
-                      *ngIf="evento.imagen"
-                      [src]="getImagenUrl(evento.imagen)"
-                      alt="Evento"
-                      class="absolute inset-0 w-full h-full object-cover group-hover:opacity-60 transition-opacity"
-                    >
-
-                    <div class="flex flex-col items-center gap-3 z-10 p-6 text-center">
-                      <div class="bg-white p-4 rounded-full shadow-md group-hover:scale-110 transition-transform">
-                        <svg class="w-8 h-8 text-gray-400 group-hover:text-arica-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div class="space-y-1">
-                        <p class="text-sm font-bold text-gray-700 group-hover:text-arica-blue">
-                          {{ evento.imagen ? 'Cambiar imagen' : 'Subir imagen' }}
-                        </p>
-                        <p class="text-xs text-gray-500">Haz clic para seleccionar un archivo</p>
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    #fileInput
-                    type="file"
-                    accept="image/*"
-                    (change)="onFileSelected($event)"
-                    class="hidden"
-                  >
-                </div>
-
-
-                <div>
-                  <label class="block text-arica-blue font-bold text-lg mb-2 text-center">
-                    Capacidad Maxima
-                  </label>
-                  <input
-                    type="number"
-                    [(ngModel)]="evento.capacidad"
-                    placeholder="100"
-                    class="w-24 mx-auto block px-4 py-3 bg-cyan-400 text-white rounded-lg outline-none focus:ring-2 focus:ring-arica-blue text-center text-xl font-bold"
-                  >
-                </div>
-              </div>
-
-
-              <div class="pt-4">
-                <button
-                  (click)="volver()"
-                  class="w-full bg-arica-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transition-colors"
-                >
-                  Salir
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './crear-evento.component.html',
   styles: []
 })
 export class CrearEventoComponent implements OnInit {
@@ -253,7 +32,8 @@ export class CrearEventoComponent implements OnInit {
     horaInicio: '',
     horaFin: '',
     capacidad: null as number | null,
-    imagen: '' as string | undefined
+    imagen: '' as string | undefined,
+    cursoId: null as number | null
   };
 
   selectedFile: File | null = null;
@@ -261,8 +41,10 @@ export class CrearEventoComponent implements OnInit {
   recintos: any[] = [];
   encargados: Usuario[] = [];
   categorias: CategoriaDTO[] = [];
+  cursos: Curso[] = [];
   guardando = false;
   mensaje: { tipo: 'error' | 'success', texto: string } | null = null;
+  hoy = new Date();
 
   constructor(
     private router: Router,
@@ -270,6 +52,7 @@ export class CrearEventoComponent implements OnInit {
     private recintosService: RecintosService,
     private encargadosService: EncargadosService,
     private categoriasService: CategoriasService,
+    private cursoService: CursoService,
     private storageService: StorageService
   ) { }
 
@@ -277,7 +60,16 @@ export class CrearEventoComponent implements OnInit {
     this.cargarRecintos();
     this.cargarEncargados();
     this.cargarCategorias();
+    this.cargarCursos();
   }
+
+  cargarCursos(): void {
+    this.cursoService.listarCursos().subscribe({
+      next: (data) => this.cursos = data,
+      error: (err) => console.error('Error cargando cursos', err)
+    });
+  }
+
 
   cargarRecintos(): void {
     this.recintosService.getRecintosDisponibles().subscribe({
@@ -343,8 +135,6 @@ export class CrearEventoComponent implements OnInit {
   private ejecutarCreacion(): void {
     this.guardando = true;
     this.mensaje = null;
-
-
     const fechaInicio = this.evento.fecha;
     const horaInicioISO = `${this.evento.fecha}T${this.evento.horaInicio}:00`;
     const horaFinISO = `${this.evento.fecha}T${this.evento.horaFin}:00`;
@@ -361,7 +151,8 @@ export class CrearEventoComponent implements OnInit {
       recintoId: this.evento.recintoId!,
       encargadoId: this.evento.encargadoId!,
       imagen: this.evento.imagen || '',
-      imagenUrl: this.evento.imagen || ''
+      imagenUrl: this.evento.imagen || '',
+      cursoId: this.evento.cursoId || undefined
     };
 
     console.log('Enviando evento:', eventoDTO);
@@ -417,6 +208,11 @@ export class CrearEventoComponent implements OnInit {
     }
     if (!this.evento.horaFin) {
       this.mostrarMensaje('error', 'La hora de fin es obligatoria');
+      return false;
+    }
+
+    if (this.evento.horaFin <= this.evento.horaInicio) {
+      this.mostrarMensaje('error', 'La hora de fin debe ser posterior a la hora de inicio');
       return false;
     }
     return true;

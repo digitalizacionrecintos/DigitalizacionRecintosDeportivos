@@ -1,0 +1,6 @@
+export enum EstadoEvento {
+    EN_ESPERA = 'EN_ESPERA',
+    DISPONIBLE = 'DISPONIBLE',
+    TERMINADO = 'TERMINADO',
+    TRANSCURRIENDO = 'TRANSCURRIENDO'
+}

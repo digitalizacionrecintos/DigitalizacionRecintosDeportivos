@@ -243,6 +243,7 @@ public class DataSeeder {
         e.setHoraFin(fecha.atTime(12, 0));
         e.setCupoMaximo(50 + (int) (Math.random() * 100));
         e.setEstado(estado);
+        e.setMaximoPorInscripcion(5);
         repo.save(e);
     }
 
@@ -270,7 +271,10 @@ public class DataSeeder {
     private void crearInscripcion(com.recintos.municipalidad.repository.RepositorioInscripcion repo, Usuario u,
             Evento e) {
         com.recintos.municipalidad.model.Inscripcion i = new com.recintos.municipalidad.model.Inscripcion();
-        i.setUsuario(u);
+        i.setNombre(u.getNombre());
+        i.setApellido(u.getApellido());
+        i.setEdad(25);
+        i.setTutor(u);
         i.setEvento(e);
         i.setFechaHoraRegistro(LocalDateTime.now());
 

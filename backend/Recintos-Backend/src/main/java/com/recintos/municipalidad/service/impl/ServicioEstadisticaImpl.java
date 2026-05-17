@@ -1,9 +1,11 @@
 package com.recintos.municipalidad.service.impl;
 
 import com.recintos.municipalidad.controller.dto.EstadisticasResponseDTO;
-import com.recintos.municipalidad.model.Evento;
+import com.recintos.municipalidad.controller.dto.EstadisticasCursosDTO;
+import com.recintos.municipalidad.model.Curso;
 import com.recintos.municipalidad.repository.RepositorioEvento;
 import com.recintos.municipalidad.repository.RepositorioInscripcion;
+import com.recintos.municipalidad.repository.RepositorioCurso;
 import com.recintos.municipalidad.service.ServicioEstadistica;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
         @Autowired
         private RepositorioEvento repositorioEvento;
 
+        @Autowired
+        private RepositorioCurso repositorioCurso;
+
         @Override
         public EstadisticasResponseDTO obtenerEstadisticas(Integer anio) {
 
@@ -34,6 +39,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                 double porcentajeAsistencia = (totalInscripciones > 0) ? (double) asistencias / totalInscripciones * 100
                                 : 0;
                 double tasaAusentismo = 100 - porcentajeAsistencia;
+                
                 if (totalInscripciones == 0)
                         tasaAusentismo = 0;
 
@@ -97,5 +103,134 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                                 .recintos(recintos)
                                 .distribucionTemporal(distTemporal)
                                 .build();
+        }
+
+        @Override
+        public EstadisticasCursosDTO obtenerEstadisticasCursos(Integer anio) {
+                // Get all courses, filter by year if specified
+                List<Curso> cursos = repositorioCurso.findAll();
+                
+                if (anio != null) {
+                        cursos = cursos.stream()
+                                .filter(c -> c.getFechaInicio() != null && 
+                                           c.getFechaInicio().getYear() == anio)
+                                .collect(Collectors.toList());
+                }
+
+                // Calculate summary statistics
+                int totalCursos = cursos.size();
+                int totalInscritos = cursos.stream()
+                        .mapToInt(c -> c.getSesiones() != null ? 
+                                c.getSesiones().stream()
+                                        .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
+                                        .sum() : 0)
+                        .sum();
+                
+                double promedioInscritosPorCurso = totalCursos > 0 ? (double) totalInscritos / totalCursos : 0;
+
+                EstadisticasCursosDTO.ResumenCursos resumen = new EstadisticasCursosDTO.ResumenCursos(
+                        totalCursos,
+                        totalInscritos,
+                        Math.round(promedioInscritosPorCurso * 10.0) / 10.0
+                );
+
+                // Get top popular courses
+                List<EstadisticasCursosDTO.CursoPopular> cursosPopulares = cursos.stream()
+                        .map(c -> {
+                                int inscritos = c.getSesiones() != null ? 
+                                        c.getSesiones().stream()
+                                                .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
+                                                .sum() : 0;
+                                int cupoMaximo = c.getCupo() != null ? c.getCupo() : 0;
+                                double porcentaje = cupoMaximo > 0 ? (double) inscritos / cupoMaximo * 100 : 0;
+                                String categoria = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categoría";
+                                
+                                return new EstadisticasCursosDTO.CursoPopular(
+                                        c.getNombre(),
+                                        inscritos,
+                                        cupoMaximo,
+                                        Math.round(porcentaje * 10.0) / 10.0,
+                                        categoria
+                                );
+                        })
+                        .sorted((a, b) -> Integer.compare(b.getInscritos(), a.getInscritos()))
+                        .limit(10)
+                        .collect(Collectors.toList());
+
+                // Calculate occupation rates
+                int llenos = 0;
+                int altaOcupacion = 0;
+                int bajaOcupacion = 0;
+
+                for (Curso c : cursos) {
+                        int inscritos = c.getSesiones() != null ? 
+                                c.getSesiones().stream()
+                                        .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
+                                        .sum() : 0;
+                        int cupoMaximo = c.getCupo() != null ? c.getCupo() : 0;
+                        
+                        if (cupoMaximo > 0) {
+                                double porcentaje = (double) inscritos / cupoMaximo * 100;
+                                if (porcentaje >= 100) llenos++;
+                                else if (porcentaje >= 75) altaOcupacion++;
+                                else if (porcentaje < 50) bajaOcupacion++;
+                        }
+                }
+
+                EstadisticasCursosDTO.OcupacionCursos ocupacion = new EstadisticasCursosDTO.OcupacionCursos(
+                        llenos, altaOcupacion, bajaOcupacion
+                );
+
+                // Group by category
+                Map<String, EstadisticasCursosDTO.CategoriaCursos> categoriaMap = new HashMap<>();
+                
+                for (Curso c : cursos) {
+                        String catNombre = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categoría";
+                        int inscritos = c.getSesiones() != null ? 
+                                c.getSesiones().stream()
+                                        .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
+                                        .sum() : 0;
+                        
+                        categoriaMap.merge(catNombre, 
+                                new EstadisticasCursosDTO.CategoriaCursos(catNombre, inscritos, 1),
+                                (existing, newVal) -> new EstadisticasCursosDTO.CategoriaCursos(
+                                        catNombre,
+                                        existing.getInscritos() + newVal.getInscritos(),
+                                        existing.getCursos() + 1
+                                ));
+                }
+
+                List<EstadisticasCursosDTO.CategoriaCursos> porCategoria = new ArrayList<>(categoriaMap.values());
+                porCategoria.sort((a, b) -> Integer.compare(b.getInscritos(), a.getInscritos()));
+
+                // Monthly trend
+                Map<String, Integer> tendenciaMap = new LinkedHashMap<>();
+                
+                for (Curso c : cursos) {
+                        if (c.getFechaInicio() != null) {
+                                String mes = java.time.Month.of(c.getFechaInicio().getMonthValue())
+                                        .getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
+                                mes = mes.substring(0, 1).toUpperCase() + mes.substring(1);
+                                
+                                int inscritos = c.getSesiones() != null ? 
+                                        c.getSesiones().stream()
+                                                .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
+                                                .sum() : 0;
+                                
+                                tendenciaMap.merge(mes, inscritos, Integer::sum);
+                        }
+                }
+
+                List<EstadisticasCursosDTO.TendenciaMensual> tendenciaMensual = tendenciaMap.entrySet().stream()
+                        .map(e -> new EstadisticasCursosDTO.TendenciaMensual(e.getKey(), e.getValue()))
+                        .collect(Collectors.toList());
+
+                return new EstadisticasCursosDTO(
+                        resumen,
+                        cursosPopulares,
+                        ocupacion,
+                        porCategoria,
+                        tendenciaMensual
+                );
         }
 }

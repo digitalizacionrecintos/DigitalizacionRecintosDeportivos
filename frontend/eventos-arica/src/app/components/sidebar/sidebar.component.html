@@ -1,0 +1,63 @@
+<aside class="w-64 bg-white h-screen fixed left-0 top-0 shadow-lg flex flex-col">
+
+      <div class="p-4 border-b border-gray-200 bg-white">
+        <div class="mb-3">
+          <img
+            src="images/logo_muni.png"
+            alt="Municipalidad de Arica"
+            class="w-full max-w-full h-auto"
+            style="max-height: 240px; object-fit: contain;"
+            onerror="this.style.display='none'"
+          >
+        </div>
+        <div>
+          <img
+            src="images/cuatro_iconos.png"
+            alt="Iconos Institucionales"
+            class="w-full max-w-full h-auto"
+            style="max-height: 40px; object-fit: contain;"
+            onerror="this.style.display='none'"
+          >
+        </div>
+      </div>
+
+
+      <nav class="py-6 flex-1 overflow-y-auto">
+        <a
+          *ngFor="let item of menuItems"
+          [routerLink]="item.route"
+          routerLinkActive="bg-blue-50 border-l-4 border-arica-blue"
+          class="flex items-center gap-3 px-6 py-3 text-arica-blue font-semibold hover:bg-blue-50 transition-colors"
+        >
+          <img src="images/sol.png" alt="" class="w-6 h-6 object-contain">
+          <span class="font-bold">{{ item.label }}</span>
+        </a>
+      </nav>
+
+
+      <div class="border-t border-gray-200 p-4">
+
+        <div class="flex items-center gap-3 px-2 py-3 mb-2">
+          <div class="w-10 h-10 bg-gradient-to-br from-arica-blue to-blue-600 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-800 truncate">{{ userEmail }}</p>
+            <p class="text-xs text-gray-500">Administrador</p>
+          </div>
+        </div>
+
+
+        <button
+          (click)="logout()"
+          class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-lg transition-colors"
+        >
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+          </svg>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>

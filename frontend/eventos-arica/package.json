@@ -1,6 +1,8 @@
 {
   "name": "eventos-arica",
   "version": "0.0.0",
+  "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,44 +10,39 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  "prettier": {
-    "printWidth": 100,
-    "singleQuote": true,
-    "overrides": [
-      {
-        "files": "*.html",
-        "options": {
-          "parser": "angular"
-        }
-      }
-    ]
-  },
-  "private": true,
-  "packageManager": "npm@11.7.0",
   "dependencies": {
-    "@angular/common": "^21.0.0",
-    "@angular/compiler": "^21.0.0",
-    "@angular/core": "^21.0.0",
-    "@angular/forms": "^21.0.0",
-    "@angular/platform-browser": "^21.0.0",
-    "@angular/router": "^21.0.0",
-    "@stomp/stompjs": "^7.2.1",
-    "@swimlane/ngx-charts": "^23.1.0",
-    "rxjs": "~7.8.0",
-    "sockjs-client": "^1.6.1",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.15.0"
-  },
+  "@angular/animations": "18.2.14",
+  "@angular/common": "18.2.14",
+  "@angular/compiler": "18.2.14",
+  "@angular/core": "18.2.14",
+  "@angular/forms": "18.2.14",
+  "@angular/platform-browser": "18.2.14",
+  "@angular/platform-browser-dynamic": "18.2.14",
+  "@angular/router": "18.2.14",
+
+  "@angular/cdk": "18.2.14",
+
+  "@stomp/stompjs": "^7.2.1",
+  "@swimlane/ngx-charts": "23.1.0",
+
+  "rxjs": "~7.8.1",
+  "sockjs-client": "^1.6.1",
+  "tslib": "^2.6.2",
+  "zone.js": "~0.14.10"
+}
+,
   "devDependencies": {
-    "@angular/build": "^21.0.3",
-    "@angular/cli": "^21.0.3",
-    "@angular/compiler-cli": "^21.0.0",
+    "@angular/build": "18.2.21",
+    "@angular/cli": "18.2.21",
+    "@angular/compiler-cli": "18.2.14",
+
     "@types/sockjs-client": "^1.5.4",
-    "autoprefixer": "^10.4.22",
-    "jsdom": "^27.1.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.19",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+
+    "typescript": "~5.5.4",
+    "jsdom": "^24.0.0",
+    "vitest": "^1.6.0"
   }
 }

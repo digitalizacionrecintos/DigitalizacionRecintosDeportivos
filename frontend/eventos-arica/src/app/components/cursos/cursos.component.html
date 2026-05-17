@@ -1,0 +1,469 @@
+<div class="flex h-screen ml-64 overflow-hidden bg-gray-50">
+  <div class="w-full bg-[#0045AB] flex flex-col shadow-2xl z-10 relative">
+    <div class="p-6 pb-2">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-4xl font-bold text-white">Cursos</h1>
+        <button (click)="abrirModalCrear()"
+          class="bg-[#39A853] hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 shadow-lg text-sm">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+              clip-rule="evenodd" />
+          </svg>
+          Crear Curso
+        </button>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+        <button *ngFor="let tab of tabs" (click)="cambiarTab(tab.value)" [class]="tabActiva === tab.value 
+            ? 'bg-white text-[#0045AB] border-b-4 border-[#0045AB] font-bold shadow-md' 
+            : 'bg-white/20 text-white hover:bg-white/30 font-semibold'"
+          class="px-4 py-2 rounded-t-lg transition-all whitespace-nowrap flex items-center gap-2 min-w-fit">
+          <span>{{ tab.label }}</span>
+          <span [class]="tabActiva === tab.value ? 'bg-[#0045AB] text-white' : 'bg-white/30 text-white'"
+            class="px-2 py-0.5 rounded-full text-xs font-bold">
+            {{ getCursosCount(tab.value) }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="bg-white rounded-lg p-4 mb-4 shadow-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <!-- Search -->
+          <div class="lg:col-span-3">
+            <label class="block text-gray-600 text-xs font-semibold mb-1">Buscar</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input [(ngModel)]="busqueda" type="text" placeholder="Buscar por nombre o descripción..."
+                class="w-full pl-10 pr-4 py-2 bg-gray-50 text-gray-700 placeholder-gray-400 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all">
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div>
+            <label class="block text-gray-600 text-xs font-semibold mb-1">Categoría</label>
+            <select [(ngModel)]="categoriaFiltro"
+              class="w-full px-4 py-2 bg-gray-50 text-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all">
+              <option [ngValue]="null">Todas las categorías</option>
+              <option *ngFor="let cat of categorias" [ngValue]="cat.id">
+                {{ cat.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Date Range -->
+          <div>
+            <label class="block text-gray-600 text-xs font-semibold mb-1">Rango de fechas</label>
+            <div class="flex gap-2">
+              <input [(ngModel)]="fechaInicioFiltro" type="date" placeholder="Desde"
+                class="flex-1 px-3 py-2 bg-gray-50 text-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-sm">
+              <input [(ngModel)]="fechaFinFiltro" type="date" placeholder="Hasta"
+                class="flex-1 px-3 py-2 bg-gray-50 text-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-sm">
+            </div>
+          </div>
+
+          <!-- Session Count Range -->
+          <div>
+            <label class="block text-gray-600 text-xs font-semibold mb-1">Cantidad de sesiones</label>
+            <div class="flex gap-2 items-center">
+              <input [(ngModel)]="sesionesMin" type="number" placeholder="Mínimo" min="0"
+                class="flex-1 px-3 py-2 bg-gray-50 text-gray-700 placeholder-gray-400 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-sm">
+              <span class="text-gray-400">-</span>
+              <input [(ngModel)]="sesionesMax" type="number" placeholder="Máximo" min="0"
+                class="flex-1 px-3 py-2 bg-gray-50 text-gray-700 placeholder-gray-400 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-sm">
+            </div>
+          </div>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div *ngIf="tieneFiltrosActivos()" class="mt-3 flex justify-end">
+          <button (click)="limpiarFiltros()"
+            class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all flex items-center gap-2 text-sm font-semibold border border-red-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Limpiar filtros ({{ contarFiltrosActivos() }})
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+        <div *ngIf="cursosFiltrados.length === 0" class="text-white text-center py-8 opacity-80">
+          <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-lg font-semibold mb-2">No se encontraron cursos</p>
+          <p class="text-sm" *ngIf="tieneFiltrosActivos()">
+            Intenta ajustar los filtros o <button (click)="limpiarFiltros()" class="underline hover:text-white">limpiar
+              todos los filtros</button>
+          </p>
+        </div>
+        <div *ngFor="let curso of cursosPaginados"
+          class="relative bg-white rounded-xl p-4 shadow-md flex justify-between items-center group transform transition-transform hover:scale-[1.01]">
+          <div>
+            <h3 class="text-[#0045AB] text-lg font-bold leading-tight mb-1">{{ curso.nombre }}</h3>
+
+            <div class="flex items-center mb-2" *ngIf="curso.categoria">
+              <span
+                class="bg-[#FFCB4A] text-[#85690F] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-yellow-200">
+                {{ curso.categoria.nombre }}
+              </span>
+              <span [class]="getEstadoClass(curso.estado)"
+                class="ml-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border">
+                {{ getEstadoLabel(curso.estado) }}
+              </span>
+            </div>
+
+            <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ curso.descripcion }}</p>
+
+            <div class="flex flex-wrap gap-3 text-xs text-gray-500">
+              <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded border border-gray-100"
+                *ngIf="curso.fechaInicio && curso.fechaFin">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>{{ curso.fechaInicio | date:'dd/MM/yyyy' }} - {{ curso.fechaFin | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded border border-gray-100"
+                *ngIf="curso.dias">
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ curso.dias }} {{ curso.horaInicio }} - {{ curso.horaFin }}</span>
+              </div>
+
+              <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>{{ curso.cantidadSesiones || 0 }} Sesiones</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <!-- Publicar button - only for BORRADOR -->
+            <button *ngIf="curso.estado === 'BORRADOR'" (click)="publicarCurso(curso.idCurso!)"
+              class="text-green-600 hover:text-green-800 font-bold text-sm bg-green-50 px-3 py-1.5 rounded-lg transition-colors">
+              Publicar
+            </button>
+
+            <!-- Cancelar button - for non-terminal states -->
+            <button *ngIf="curso.estado !== 'FINALIZADO' && curso.estado !== 'CANCELADO'"
+              (click)="cancelarCurso(curso.idCurso!)"
+              class="text-orange-600 hover:text-orange-800 font-bold text-sm bg-orange-50 px-3 py-1.5 rounded-lg transition-colors">
+              Cancelar
+            </button>
+
+            <!-- Editar button - disabled for FINALIZADO and CANCELADO -->
+            <button (click)="abrirModalEditar(curso)"
+              [disabled]="curso.estado === 'FINALIZADO' || curso.estado === 'CANCELADO'"
+              [class]="curso.estado === 'FINALIZADO' || curso.estado === 'CANCELADO' 
+                ? 'text-gray-400 bg-gray-100 cursor-not-allowed font-bold text-sm px-3 py-1.5 rounded-lg' 
+                : 'text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-3 py-1.5 rounded-lg transition-colors'">
+              Editar
+            </button>
+
+            <!-- Eliminar button - only for BORRADOR -->
+            <button *ngIf="curso.estado === 'BORRADOR'" (click)="eliminarCurso(curso.idCurso!)"
+              class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-3 py-1.5 rounded-lg transition-colors">Eliminar</button>
+          </div>
+        </div>
+        <div *ngIf="totalPaginas > 1" class="flex items-center justify-center gap-2 pt-4 pb-2">
+          <button (click)="paginaAnterior()" [disabled]="paginaActual === 1"
+            class="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div class="flex items-center gap-1">
+            <ng-container *ngFor="let p of paginas">
+              <button *ngIf="p !== '...'" (click)="irAPagina(p)"
+                class="w-8 h-8 rounded-lg text-xs font-bold transition-all shadow-sm" [ngClass]="{
+                        'bg-white text-[#0045AB]': paginaActual === p,
+                        'bg-white/20 text-white hover:bg-white/30': paginaActual !== p
+                      }">
+                {{ p }}
+              </button>
+              <span *ngIf="p === '...'"
+                class="w-8 h-8 flex items-center justify-center text-white/60 text-xs font-bold">
+                ...
+              </span>
+            </ng-container>
+          </div>
+          <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas"
+            class="p-2 rounded-lg bg-white/20 hover:bg-white/30 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+        <div *ngIf="cursos.length > 0" class="text-center text-white/60 text-xs pb-2">
+          Mostrando {{ (paginaActual - 1) * cursosPorPagina + 1 }} - {{ paginaActual * cursosPorPagina > cursos.length ?
+          cursos.length : paginaActual * cursosPorPagina }} de {{ cursos.length }} cursos
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="mostrarModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="h-2 flex-shrink-0">
+      <img src="images/cuatro_colores.png" alt="" class="w-full h-full object-cover">
+    </div>
+    <div class="p-8 overflow-y-auto">
+      <h3 class="text-3xl font-bold text-arica-blue mb-8 border-b-2 border-gray-200 pb-4">{{ modoEdicion ? 'Editar
+        Curso'
+        : 'Crear Curso' }}</h3>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2">
+          <label class="block text-arica-blue font-bold text-lg mb-2">Nombre</label>
+          <input [(ngModel)]="nuevoCurso.nombre"
+            class="w-full px-4 py-3 bg-arica-form-inputs rounded-lg outline-none focus:ring-2 focus:ring-arica-blue"
+            type="text" placeholder="Nombre del curso">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-arica-blue font-bold text-lg mb-2">Descripción</label>
+          <textarea [(ngModel)]="nuevoCurso.descripcion"
+            class="w-full px-4 py-3 bg-arica-form-inputs rounded-lg outline-none focus:ring-2 focus:ring-arica-blue resize-none"
+            placeholder="Descripción del curso" rows="3"></textarea>
+        </div>
+
+        <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <label class="block text-arica-blue font-bold text-base">Fecha de Inicio</label>
+            </div>
+            <input [(ngModel)]="nuevoCurso.fechaInicio" type="date"
+              class="w-full px-4 py-3 bg-white rounded-lg border border-blue-200 outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm">
+          </div>
+
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shadow-md">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <label class="block text-arica-blue font-bold text-base">Fecha de Fin</label>
+            </div>
+            <input [(ngModel)]="nuevoCurso.fechaFin" type="date"
+              class="w-full px-4 py-3 bg-white rounded-lg border border-green-200 outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 shadow-sm">
+          </div>
+        </div>
+
+        <div class="col-span-2">
+          <label class="block text-arica-blue font-bold text-lg mb-2">Estado</label>
+          <div class="w-full px-4 py-3 bg-gray-100 rounded-lg border border-gray-200">
+            <span [class]="getEstadoClass(nuevoCurso.estado)"
+              class="px-3 py-1.5 rounded text-sm font-bold uppercase tracking-wider border inline-block">
+              {{ getEstadoLabel(nuevoCurso.estado) }}
+            </span>
+            <p class="text-xs text-gray-500 mt-2">
+              El estado se actualiza automáticamente según las fechas del curso.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-span-2 bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <label class="block text-arica-blue font-bold text-base">Horarios Semanales</label>
+            </div>
+            <button (click)="agregarHorario()"
+              class="flex items-center gap-1 text-sm bg-purple-500 text-white px-3 py-2 rounded-lg hover:bg-purple-600 font-bold shadow-md transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar
+            </button>
+          </div>
+
+          <div *ngIf="!nuevoCurso.horarios || nuevoCurso.horarios.length === 0"
+            class="text-center py-8 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-sm">No hay horarios definidos</p>
+          </div>
+
+          <div class="space-y-3">
+            <div *ngFor="let horario of nuevoCurso.horarios; let i = index" class="flex gap-3 items-end bg-white p-4 rounded-lg border border-purple-100 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex-1">
+                <label class="text-xs text-purple-600 font-semibold mb-1 block">Día</label>
+                <select [(ngModel)]="horario.dia"
+                  class="w-full px-4 py-3 bg-purple-50 rounded-lg border border-purple-200 outline-none focus:ring-2 focus:ring-purple-400 text-sm font-medium">
+                  <option *ngFor="let opt of diasOptions" [value]="opt.value">{{opt.label}}</option>
+                </select>
+              </div>
+              <div class="w-28">
+                <label class="text-xs text-green-600 font-semibold mb-1 block">Hora Inicio</label>
+                <input [(ngModel)]="horario.horaInicio" type="time"
+                  class="w-full px-4 py-3 bg-green-50 rounded-lg border border-green-200 outline-none focus:ring-2 focus:ring-green-400 text-sm font-medium">
+              </div>
+              <div class="w-28">
+                <label class="text-xs text-orange-600 font-semibold mb-1 block">Hora Fin</label>
+                <input [(ngModel)]="horario.horaFin" type="time"
+                  class="w-full px-4 py-3 bg-orange-50 rounded-lg border border-orange-200 outline-none focus:ring-2 focus:ring-orange-400 text-sm font-medium">
+              </div>
+              <button (click)="eliminarHorario(i)" class="p-3 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-arica-blue font-bold text-lg mb-2">Recinto</label>
+          <select [(ngModel)]="nuevoCurso.recinto" [compareWith]="compararPorId"
+            class="w-full px-4 py-3 bg-arica-form-inputs rounded-lg outline-none focus:ring-2 focus:ring-arica-blue">
+            <option [ngValue]="null">Seleccione un recinto</option>
+            <option *ngFor="let r of recintos" [ngValue]="r">{{ r.nombre }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-arica-blue font-bold text-lg mb-2">Encargado</label>
+          <select [(ngModel)]="nuevoCurso.encargado" [compareWith]="compararPorId"
+            class="w-full px-4 py-3 bg-arica-form-inputs rounded-lg outline-none focus:ring-2 focus:ring-arica-blue">
+            <option [ngValue]="null">Seleccione un encargado</option>
+            <option *ngFor="let e of encargados" [ngValue]="e">{{ e.nombre }} {{ e.apellido }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-arica-blue font-bold text-lg mb-2">Categoría</label>
+          <select [(ngModel)]="nuevoCurso.categoria" [compareWith]="compararPorId"
+            class="w-full px-4 py-3 bg-arica-form-inputs rounded-lg outline-none focus:ring-2 focus:ring-arica-blue">
+            <option [ngValue]="null">Seleccione una categoría</option>
+            <option *ngFor="let c of categorias" [ngValue]="c">{{ c.nombre }}</option>
+          </select>
+        </div>
+
+        <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-md">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <label class="block text-arica-blue font-bold text-base">Cupo por Sesión</label>
+            </div>
+            <div class="relative">
+              <input [(ngModel)]="nuevoCurso.cupo" type="number" placeholder="0"
+                class="w-full px-4 py-3 bg-white rounded-lg border border-orange-200 outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 shadow-sm font-semibold text-lg text-center">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">personas</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Máximo de participantes por cada sesión</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-cyan-50 to-sky-50 p-4 rounded-xl border border-cyan-100">
+            <div class="flex items-center gap-2 mb-3">
+              <div class="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center shadow-md">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <label class="block text-arica-blue font-bold text-base">Max. Inscripciones por Cuenta</label>
+            </div>
+            <div class="relative">
+              <input [(ngModel)]="nuevoCurso.maximoPorInscripcion" type="number" placeholder="0"
+                class="w-full px-4 py-3 bg-white rounded-lg border border-cyan-200 outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 shadow-sm font-semibold text-lg text-center">
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">inscripciones</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Límite de inscripciones por usuario</p>
+          </div>
+        </div>
+
+        <div class="col-span-2 mt-4" *ngIf="modoEdicion && nuevoCurso.sesiones && nuevoCurso.sesiones.length > 0">
+          <h4 class="text-lg font-bold text-gray-800 mb-3 border-b pb-1 flex items-center gap-2">
+            <svg class="w-5 h-5 text-arica-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Sesiones del Curso
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1">
+            <div *ngFor="let sesion of nuevoCurso.sesiones; let i = index" 
+              class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between mb-3">
+                <span class="bg-arica-blue text-white text-xs font-bold px-2 py-1 rounded-full">
+                  Sesión {{ i + 1 }}
+                </span>
+                <span class="text-xs font-medium px-2 py-1 rounded-full" [ngClass]="{
+                  'bg-green-100 text-green-700': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) < 0.7,
+                  'bg-yellow-100 text-yellow-700': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) >= 0.7 && ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) < 0.9,
+                  'bg-red-100 text-red-700': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) >= 0.9
+                }">
+                  {{ sesion.inscritosActuales || 0 }}/{{ sesion.cupoMaximo }} cupos
+                </span>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                  <svg class="w-4 h-4 text-arica-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span class="font-medium">{{ formatFecha(sesion.fechaInicio) }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                  <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{{ formatHora(sesion.horaInicio) }} - {{ formatHora(sesion.horaFin) }}</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                  <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="truncate">{{ sesion.recinto?.nombre || 'Sin recinto asignado' }}</span>
+                </div>
+              </div>
+              <div class="mt-3">
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all" [ngClass]="{
+                    'bg-green-500': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) < 0.7,
+                    'bg-yellow-500': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) >= 0.7 && ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) < 0.9,
+                    'bg-red-500': ((sesion.inscritosActuales || 0) / sesion.cupoMaximo) >= 0.9
+                  }" [style.width.%]="((sesion.inscritosActuales || 0) / sesion.cupoMaximo) * 100"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 text-right">{{ sesion.cupoMaximo - (sesion.inscritosActuales || 0) }} disponibles</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mt-8 pt-4 border-t border-gray-100">
+        <button (click)="guardarCurso()"
+          class="flex-1 bg-arica-blue hover:bg-arica-blue-dark text-white font-bold py-3 rounded-lg transition-colors shadow-md">
+          {{ modoEdicion ? 'Guardar Cambios' : 'Crear Curso' }}
+        </button>
+        <button (click)="cerrarModal()"
+          class="flex-1 bg-arica-orange hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition-colors shadow-md">
+          Cancelar
+        </button>
+      </div>

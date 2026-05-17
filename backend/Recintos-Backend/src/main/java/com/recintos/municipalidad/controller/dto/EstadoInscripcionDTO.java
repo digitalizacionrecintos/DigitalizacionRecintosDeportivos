@@ -12,8 +12,8 @@ public class EstadoInscripcionDTO {
     private boolean cupoDisponible;
     private boolean puedeInscribirse;
     private String mensaje;
-
     private String estadoEvento;
     private Long inscritos;
     private Integer cupoMaximo;
+    private Long inscripcionesUsuario;
 }
