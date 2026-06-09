@@ -2,6 +2,7 @@ package com.recintos.municipalidad.controller;
 
 import com.recintos.municipalidad.controller.dto.*;
 import com.recintos.municipalidad.exception.SinCupoException;
+import com.recintos.municipalidad.exception.UsuarioYaInscritoException;
 import com.recintos.municipalidad.model.Inscripcion;
 import com.recintos.municipalidad.service.ServicioInscripcion;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class InscripcionController {
                     inscripcionDTO.getIdEvento());
             return new ResponseEntity<>(inscripcion, HttpStatus.CREATED);
         } catch (SinCupoException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (UsuarioYaInscritoException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -60,7 +63,7 @@ public class InscripcionController {
     }
 
 
-    ///  hacer un dto especial para este endpoint
+    
     @GetMapping("/check-course")
     public ResponseEntity<InscripcionEstadoCursoResponseDTO> verificarInscripcionACurso(
         @RequestParam Long idCurso,

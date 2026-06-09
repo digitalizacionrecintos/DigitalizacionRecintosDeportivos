@@ -40,9 +40,9 @@ public class EstadisticasCursosDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class OcupacionCursos {
-        private int llenos;           // 100% ocupación
-        private int altaOcupacion;    // >75%
-        private int bajaOcupacion;    // <50%
+        private int llenos;           
+        private int altaOcupacion;    
+        private int bajaOcupacion;    
     }
 
     @Data

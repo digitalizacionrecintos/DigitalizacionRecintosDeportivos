@@ -25,4 +25,20 @@ actual object PreferencesStorage {
             e.printStackTrace()
         }
     }
+
+    actual fun getString(key: String, defaultValue: String?): String? {
+        return try {
+            sharedPreferences.getString(key, defaultValue)
+        } catch (e: Exception) {
+            defaultValue
+        }
+    }
+
+    actual fun setString(key: String, value: String?) {
+        try {
+            sharedPreferences.edit().putString(key, value).apply()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

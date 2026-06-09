@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniElevation
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
@@ -19,10 +19,13 @@ import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import org.example.project.domain.manager.SessionManager
 import org.example.project.domain.model.UserRole
+import org.example.project.presentation.tabs.CursosTab
+import org.example.project.presentation.tabs.EstadisticasTab
 import org.example.project.presentation.tabs.HistoryTab
 import org.example.project.presentation.tabs.HomeTab
 import org.example.project.presentation.tabs.ManagerEventsTab
 import org.example.project.presentation.tabs.ManagerHistoryTab
+import org.example.project.presentation.tabs.NotificacionesTab
 import org.example.project.presentation.tabs.ProfileTab
 
 class MainScreen : Screen {
@@ -37,18 +40,21 @@ class MainScreen : Screen {
                     contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     bottomBar = {
                         NavigationBar(
-                                containerColor = Color.White,
-                                tonalElevation = 4.dp,
+                                containerColor = MuniColors.surfaceCard,
+                                tonalElevation = MuniElevation.raised,
                                 modifier = Modifier.fillMaxWidth(),
                                 windowInsets = WindowInsets(0, 0, 0, 0)
                         ) {
                             if (currentRole == UserRole.MANAGER) {
                                 TabNavigationItem(ManagerEventsTab)
                                 TabNavigationItem(ManagerHistoryTab)
+                                TabNavigationItem(EstadisticasTab)
                             } else {
                                 TabNavigationItem(HomeTab)
+                                TabNavigationItem(CursosTab)
                                 TabNavigationItem(HistoryTab)
                             }
+                            TabNavigationItem(NotificacionesTab)
                             TabNavigationItem(ProfileTab)
                         }
                     }
@@ -75,12 +81,11 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
             label = { Text(tab.options.title) },
             colors =
                     NavigationBarItemDefaults.colors(
-                            selectedIconColor = Color(0xFF043CC7),
-                            selectedTextColor = Color(0xFF043CC7),
-                            indicatorColor =
-                                    Color(0xFFE6E6E6),
-                            unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            selectedIconColor = MuniColors.primaryBlue,
+                            selectedTextColor = MuniColors.primaryBlue,
+                            indicatorColor = MuniColors.offWhite,
+                            unselectedIconColor = MuniColors.mediumGray,
+                            unselectedTextColor = MuniColors.mediumGray
                     )
     )
 }

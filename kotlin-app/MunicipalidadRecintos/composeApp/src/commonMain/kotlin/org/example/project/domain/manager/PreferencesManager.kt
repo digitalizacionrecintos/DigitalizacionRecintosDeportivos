@@ -23,4 +23,11 @@ object PreferencesManager {
 expect object PreferencesStorage {
     fun getBoolean(key: String, defaultValue: Boolean): Boolean
     fun setBoolean(key: String, value: Boolean)
+    fun getString(key: String, defaultValue: String?): String?
+    fun setString(key: String, value: String?)
+}
+
+object PreferenceKeys {
+    const val SERVER_IP = "server_ip"
+    const val SERVER_PORT = "server_port"
 }

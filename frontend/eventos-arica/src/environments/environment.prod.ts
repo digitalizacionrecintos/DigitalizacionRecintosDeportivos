@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://<your-server-ip>:8080/api'
+    apiUrl: 'http://gestionrecintosmuni.ddns.net:8080/api'
 };

@@ -35,10 +35,29 @@ data class UpdateUserRequest(
 
 @Serializable
 data class InscriptionStatus(
-        val yaInscrito: Boolean,
-        val cupoDisponible: Boolean,
-        val puedeInscribirse: Boolean,
-        val mensaje: String
+        val inscrito: Boolean,
+        val tituloEvento: String = "",
+        @kotlinx.serialization.SerialName("fechaInicio")
+        val fecha: String = "",
+        val horaInicio: String = "",
+        val horaFin: String = "",
+        val inscripciones: List<InscripcionEventoDTO> = emptyList()
 )
 
-@Serializable data class InscriptionRequest(val idUsuario: Int, val idEvento: Int)
+@Serializable
+data class InscripcionEventoDTO(
+        val idInscripcion: Int,
+        val nombre: String? = null,
+        val apellido: String? = null,
+        val apellidos: String? = null,
+        val edad: Int? = null,
+        val estadoAsistencia: String = "PENDIENTE"
+)
+
+@Serializable data class InscriptionRequest(
+    val idTutor: Int,
+    val idEvento: Int,
+    val nombre: String = "",
+    @kotlinx.serialization.SerialName("apellidos") val apellido: String = "",
+    val edad: Int = 0
+)

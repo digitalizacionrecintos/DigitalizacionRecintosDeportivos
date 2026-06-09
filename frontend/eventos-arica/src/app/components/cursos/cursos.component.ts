@@ -28,7 +28,7 @@ export class CursosComponent implements OnInit, OnDestroy {
     modoEdicion = false;
     mostrarModal = false;
 
-    // Tab state
+    
     tabActiva: string = 'TODOS';
     tabs = [
         { label: 'Todos', value: 'TODOS', color: 'bg-gray-600' },
@@ -39,7 +39,7 @@ export class CursosComponent implements OnInit, OnDestroy {
         { label: 'Cancelados', value: 'CANCELADO', color: 'bg-orange-600' }
     ];
 
-    // Search and filters
+    
     busqueda: string = '';
     categoriaFiltro: number | null = null;
     fechaInicioFiltro: string = '';
@@ -50,10 +50,10 @@ export class CursosComponent implements OnInit, OnDestroy {
     diasOptions = [
         { label: 'Lunes', value: 'MONDAY' },
         { label: 'Martes', value: 'TUESDAY' },
-        { label: 'Miércoles', value: 'WEDNESDAY' },
+        { label: 'MiÃ©rcoles', value: 'WEDNESDAY' },
         { label: 'Jueves', value: 'THURSDAY' },
         { label: 'Viernes', value: 'FRIDAY' },
-        { label: 'Sábado', value: 'SATURDAY' },
+        { label: 'SÃ¡bado', value: 'SATURDAY' },
         { label: 'Domingo', value: 'SUNDAY' }
     ];
 
@@ -118,7 +118,7 @@ export class CursosComponent implements OnInit, OnDestroy {
     cargarCategorias(): void {
         this.categoriasService.getCategorias().subscribe({
             next: (data) => this.categorias = data,
-            error: (err) => console.error('Error al cargar categorías', err)
+            error: (err) => console.error('Error al cargar categorÃ­as', err)
         });
     }
 
@@ -224,7 +224,7 @@ export class CursosComponent implements OnInit, OnDestroy {
             case 'EN_PROGRESO': return 'bg-blue-100 text-blue-800 border-blue-200';
             case 'FINALIZADO': return 'bg-gray-100 text-gray-800 border-gray-200';
             case 'CANCELADO': return 'bg-red-100 text-red-800 border-red-200';
-            default: return 'bg-yellow-100 text-yellow-800 border-yellow-200'; // BORRADOR
+            default: return 'bg-yellow-100 text-yellow-800 border-yellow-200'; 
         }
     }
 
@@ -246,7 +246,7 @@ export class CursosComponent implements OnInit, OnDestroy {
             });
         }
 
-        // Transform data to match backend DTO expectations
+        
         const cursoData: any = {
             nombre: this.nuevoCurso.nombre,
             descripcion: this.nuevoCurso.descripcion,
@@ -259,7 +259,7 @@ export class CursosComponent implements OnInit, OnDestroy {
             maximoPorInscripcion: this.nuevoCurso.maximoPorInscripcion,
             estado: this.nuevoCurso.estado || 'BORRADOR',
             horarios: this.nuevoCurso.horarios,
-            // Extract IDs from objects
+            
             idRecinto: this.nuevoCurso.recinto?.idRecinto || null,
             idEncargado: this.nuevoCurso.encargado?.idUsuario || this.nuevoCurso.encargado?.id || null,
             idCategoria: this.nuevoCurso.categoria?.id || null
@@ -285,7 +285,7 @@ export class CursosComponent implements OnInit, OnDestroy {
     }
 
     publicarCurso(id: number): void {
-        if (confirm('¿Estás seguro de publicar este curso? Una vez publicado, estará visible para inscripciones.')) {
+        if (confirm('Â¿EstÃ¡s seguro de publicar este curso? Una vez publicado, estarÃ¡ visible para inscripciones.')) {
             this.cursoService.publicarCurso(id).subscribe({
                 next: () => this.cargarCursos(),
                 error: (err) => {
@@ -297,7 +297,7 @@ export class CursosComponent implements OnInit, OnDestroy {
     }
 
     cancelarCurso(id: number): void {
-        if (confirm('¿Estás seguro de cancelar este curso? Esta acción no se puede deshacer.')) {
+        if (confirm('Â¿EstÃ¡s seguro de cancelar este curso? Esta acciÃ³n no se puede deshacer.')) {
             this.cursoService.cancelarCurso(id).subscribe({
                 next: () => this.cargarCursos(),
                 error: (err) => {
@@ -309,7 +309,7 @@ export class CursosComponent implements OnInit, OnDestroy {
     }
 
     eliminarCurso(id: number): void {
-        if (confirm('¿Estás seguro de eliminar este curso? Esto no eliminará los eventos ya creados automáticamente.')) {
+        if (confirm('Â¿EstÃ¡s seguro de eliminar este curso? Esto no eliminarÃ¡ los eventos ya creados automÃ¡ticamente.')) {
             this.cursoService.eliminarCurso(id).subscribe({
                 next: () => this.cargarCursos(),
                 error: (err) => console.error('Error al eliminar curso', err)
@@ -317,20 +317,20 @@ export class CursosComponent implements OnInit, OnDestroy {
         }
     }
 
-    // Pagination Logic
+    
     paginaActual = 1;
     cursosPorPagina = 5;
 
-    // Filtered courses based on active tab and filters
+    
     get cursosFiltrados(): Curso[] {
         let resultado = this.cursos;
 
-        // 1. Filter by tab (estado)
+        
         if (this.tabActiva !== 'TODOS') {
             resultado = resultado.filter(c => c.estado === this.tabActiva);
         }
 
-        // 2. Filter by search text
+        
         if (this.busqueda.trim()) {
             const busq = this.busqueda.toLowerCase();
             resultado = resultado.filter(c =>
@@ -339,14 +339,14 @@ export class CursosComponent implements OnInit, OnDestroy {
             );
         }
 
-        // 3. Filter by category
+        
         if (this.categoriaFiltro) {
             resultado = resultado.filter(c =>
                 c.categoria?.id === this.categoriaFiltro
             );
         }
 
-        // 4. Filter by date range
+        
         if (this.fechaInicioFiltro) {
             resultado = resultado.filter(c =>
                 c.fechaInicio && c.fechaInicio >= this.fechaInicioFiltro
@@ -358,7 +358,7 @@ export class CursosComponent implements OnInit, OnDestroy {
             );
         }
 
-        // 5. Filter by session count
+        
         if (this.sesionesMin !== null) {
             resultado = resultado.filter(c =>
                 (c.cantidadSesiones || 0) >= this.sesionesMin!

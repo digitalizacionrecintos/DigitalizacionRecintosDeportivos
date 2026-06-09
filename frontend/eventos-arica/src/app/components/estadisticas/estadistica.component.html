@@ -7,14 +7,14 @@
         <img src="images/cuatro_colores.png" alt="" class="w-full h-full object-cover">
       </div>
       <div class="p-8">
-        <h1 class="text-4xl font-bold text-arica-blue mb-2">Estadísticas de Eventos</h1>
-        <p class="text-gray-600">Análisis detallado de la actividad de eventos municipales</p>
+        <h1 class="text-4xl font-bold text-arica-blue mb-2">EstadÃ­sticas de Eventos</h1>
+        <p class="text-gray-600">AnÃ¡lisis detallado de la actividad de eventos municipales</p>
       </div>
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-4 mb-8">
       <div class="flex items-center justify-end gap-4">
-        <label class="text-arica-blue font-bold">Año:</label>
+        <label class="text-arica-blue font-bold">AÃ±o:</label>
         <select [(ngModel)]="anioSeleccionado" (change)="actualizarDatos()"
           class="px-4 py-2 bg-arica-blue text-white rounded-lg outline-none focus:ring-2 focus:ring-blue-400 font-semibold cursor-pointer shadow-md hover:bg-blue-800 transition-colors">
           <option [ngValue]="null">Todos</option>
@@ -24,7 +24,7 @@
     </div>
 
     <div *ngIf="loading" class="text-center text-white text-xl py-10">
-      Cargando estadísticas...
+      Cargando estadÃ­sticas...
     </div>
 
     <div *ngIf="!loading && statsData" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -43,11 +43,11 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
           </svg>
-          <h2 class="text-sm font-bold" style="color: #051C9C;">Distribución Mensual</h2>
+          <h2 class="text-sm font-bold" style="color: #051C9C;">DistribuciÃ³n Mensual</h2>
           <button
-            (click)="abrirModalInfo('Distribución Mensual', 'Visualiza la cantidad total de eventos realizados en cada mes del año seleccionado. Permite identificar los meses con mayor actividad.')"
+            (click)="abrirModalInfo('DistribuciÃ³n Mensual', 'Visualiza la cantidad total de eventos realizados en cada mes del aÃ±o seleccionado. Permite identificar los meses con mayor actividad.')"
             class="ml-auto text-gray-400 hover:text-arica-blue transition-colors focus:outline-none"
-            title="Más información">
+            title="MÃ¡s informaciÃ³n">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -128,7 +128,7 @@
 
         <div class="mt-6 p-4 bg-gradient-to-br from-arica-blue to-blue-600 rounded-lg">
           <div class="text-center">
-            <p class="text-white/80 text-sm mb-1">Mes con más eventos</p>
+            <p class="text-white/80 text-sm mb-1">Mes con mÃ¡s eventos</p>
             <p class="text-2xl font-bold text-white">{{ mesMasEventos.mes }}</p>
             <p class="text-white/90 text-lg">{{ mesMasEventos.cantidad }} eventos</p>
           </div>
@@ -161,11 +161,11 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h2 class="text-sm font-bold" style="color: #051C9C;">Mapa de Intensidad {{ anioSeleccionado || "Todos los años" }}</h2>
+            <h2 class="text-sm font-bold" style="color: #051C9C;">Mapa de Intensidad {{ anioSeleccionado || "Todos los aÃ±os" }}</h2>
             <button
-              (click)="abrirModalInfo('Mapa de Intensidad', 'Gráfico de calor que muestra la concentración de eventos a lo largo de las semanas del año. Los cuadros más oscuros indican semanas con mayor cantidad de eventos.')"
+              (click)="abrirModalInfo('Mapa de Intensidad', 'GrÃ¡fico de calor que muestra la concentraciÃ³n de eventos a lo largo de las semanas del aÃ±o. Los cuadros mÃ¡s oscuros indican semanas con mayor cantidad de eventos.')"
               class="ml-2 text-gray-400 hover:text-arica-blue transition-colors focus:outline-none"
-              title="Más información">
+              title="MÃ¡s informaciÃ³n">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -179,7 +179,7 @@
             <div class="w-4 h-4 bg-arica-cyan/60 rounded"></div>
             <div class="w-4 h-4 bg-arica-cyan rounded"></div>
             <div class="w-4 h-4 bg-arica-blue rounded"></div>
-            <span class="text-gray-500">Más</span>
+            <span class="text-gray-500">MÃ¡s</span>
           </div>
         </div>
 
@@ -233,7 +233,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                       </svg>
-                      Información
+                      InformaciÃ³n
                     </h3>
                     <button (click)="cerrarModalInfo()" class="hover:bg-white/20 rounded-full p-1 transition-colors">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -275,9 +275,9 @@
           </svg>
           <h2 class="text-sm font-bold" style="color: #051C9C;">Por {{ granularidadSeleccionada }}</h2>
           <button
-            (click)="abrirModalInfo('Desglose por ' + granularidadSeleccionada, 'Muestra el detalle numérico de la cantidad de eventos agrupados según la granularidad seleccionada (Mes, Año o Semana).')"
+            (click)="abrirModalInfo('Desglose por ' + granularidadSeleccionada, 'Muestra el detalle numÃ©rico de la cantidad de eventos agrupados segÃºn la granularidad seleccionada (Mes, AÃ±o o Semana).')"
             class="ml-auto text-gray-400 hover:text-arica-blue transition-colors focus:outline-none"
-            title="Más información">
+            title="MÃ¡s informaciÃ³n">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -296,34 +296,34 @@
       </div>
 
 
-      <!-- Course Participation Statistics Section -->
+      
       <div *ngIf="!loadingCursos && statsCursos" class="bg-white rounded-xl shadow-lg p-6 mt-8">
-        <!-- Section Header -->
+        
         <div class="flex items-center gap-3 mb-6 border-b pb-4">
           <svg class="w-6 h-6 text-arica-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
           <h2 class="text-2xl font-bold text-arica-blue">
-            Estadísticas de Participación en Cursos
+            EstadÃ­sticas de ParticipaciÃ³n en Cursos
           </h2>
         </div>
 
-        <!-- Overview Cards -->
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <!-- Total Cursos -->
+          
           <div class="bg-gradient-to-br from-arica-blue to-blue-600 rounded-lg p-6 text-white text-center">
             <p class="text-sm opacity-90 mb-2">Total de cursos</p>
             <p class="text-4xl font-bold">{{ statsCursos.resumen.totalCursos }}</p>
           </div>
 
-          <!-- Total Inscritos -->
+          
           <div class="bg-gradient-to-br from-arica-cyan to-cyan-400 rounded-lg p-6 text-white text-center">
             <p class="text-sm opacity-90 mb-2">Total de inscritos</p>
             <p class="text-4xl font-bold">{{ statsCursos.resumen.totalInscritos }}</p>
           </div>
 
-          <!-- Promedio por Curso -->
+          
           <div class="bg-gradient-to-br from-arica-yellow to-yellow-400 rounded-lg p-6 text-white text-center">
             <p class="text-sm opacity-90 mb-2">Promedio por curso</p>
             <p class="text-4xl font-bold">{{ statsCursos.resumen.promedioInscritosPorCurso }}</p>
@@ -331,16 +331,16 @@
           </div>
         </div>
 
-        <!-- Two Column Layout -->
+        
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <!-- Left: Top Cursos Populares -->
+          
           <div class="bg-gray-50 rounded-lg p-4">
             <h3 class="text-lg font-bold text-arica-blue mb-4 flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
-              Cursos Más Populares
+              Cursos MÃ¡s Populares
             </h3>
             <div class="space-y-3">
               <div *ngFor="let curso of statsCursos.cursosPopulares.slice(0, 5); let i = index"
@@ -374,10 +374,10 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Tasa de Ocupación
+              Tasa de OcupaciÃ³n
             </h3>
             <div class="space-y-4">
-              <!-- Llenos -->
+              
               <div class="bg-white rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-sm font-semibold text-gray-700">Cursos Llenos (100%)</span>
@@ -390,10 +390,10 @@
                 </div>
               </div>
 
-              <!-- Alta Ocupación -->
+              
               <div class="bg-white rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-semibold text-gray-700">Alta Ocupación (>75%)</span>
+                  <span class="text-sm font-semibold text-gray-700">Alta OcupaciÃ³n (>75%)</span>
                   <span class="text-2xl font-bold text-yellow-600">{{ statsCursos.ocupacion.altaOcupacion }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
@@ -403,10 +403,10 @@
                 </div>
               </div>
 
-              <!-- Baja Ocupación -->
+              
               <div class="bg-white rounded-lg p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-semibold text-gray-700">Baja Ocupación </span>
+                  <span class="text-sm font-semibold text-gray-700">Baja OcupaciÃ³n </span>
                       <span class="text-2xl font-bold text-red-600">{{ statsCursos.ocupacion.bajaOcupacion }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
@@ -419,14 +419,14 @@
           </div>
         </div>
 
-        <!-- Full Width: Category Distribution -->
+        
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <h3 class="text-lg font-bold text-arica-blue mb-4 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
             </svg>
-            Participación por Categoría
+            ParticipaciÃ³n por CategorÃ­a
           </h3>
           <div class="space-y-3">
             <div *ngFor="let cat of statsCursos.porCategoria"
@@ -447,7 +447,7 @@
           </div>
         </div>
 
-        <!-- Full Width: Monthly Trend -->
+        
         <div class="bg-gray-50 rounded-lg p-4">
           <h3 class="text-lg font-bold text-arica-blue mb-4 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

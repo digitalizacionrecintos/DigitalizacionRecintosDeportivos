@@ -64,6 +64,16 @@ public class ServicioEventoImpl implements ServicioEvento {
   }
 
   @Override
+  public List<Evento> listarEventosParaCliente() {
+    List<Evento> eventos = repositorioEvento.findByCursoIsNull();
+    eventos.forEach(evento -> {
+      long count = repositorioInscripcion.countByEvento(evento);
+      evento.setInscritos(count);
+    });
+    return eventos;
+  }
+
+  @Override
   public Optional<Evento> buscarEvento(Long idEvento) {
     Optional<Evento> eventoOpt = repositorioEvento.findById(idEvento);
     eventoOpt.ifPresent(evento -> {

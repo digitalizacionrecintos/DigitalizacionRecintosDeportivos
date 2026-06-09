@@ -13,4 +13,13 @@ actual object PreferencesStorage {
         userDefaults.setBool(value, key)
         userDefaults.synchronize()
     }
+
+    actual fun getString(key: String, defaultValue: String?): String? {
+        return userDefaults.stringForKey(key) ?: defaultValue
+    }
+
+    actual fun setString(key: String, value: String?) {
+        userDefaults.setObject(value, key)
+        userDefaults.synchronize()
+    }
 }

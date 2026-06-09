@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,11 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import org.example.project.domain.usecase.user.UpdateProfileUseCase
+import org.example.project.presentation.components.MuniTopBarLogo
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
@@ -27,12 +30,14 @@ import kotlinx.coroutines.delay
 import municipalidadrecintos.composeapp.generated.resources.Res
 import municipalidadrecintos.composeapp.generated.resources.logo_muni_arica
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 class EditProfileScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                val viewModel = remember { ProfileViewModel() }
+                val updateProfileUseCase: UpdateProfileUseCase = koinInject<UpdateProfileUseCase>()
+                val viewModel = remember { ProfileViewModel(updateProfileUseCase) }
                 val state by viewModel.state.collectAsState()
 
                 LaunchedEffect(state.successMessage) {
@@ -57,79 +62,46 @@ class EditProfileScreen : Screen {
                 }
 
                 Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
-                        Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+                Column(modifier = Modifier.fillMaxSize().background(MuniColors.surfaceCard)) {
 
-                                Row(
+                        Row(
+                                modifier =
+                                        Modifier.fillMaxWidth()
+                                                .background(MuniGradients.header)
+                                                .statusBarsPadding()
+                                                .padding(
+                                                        horizontal = MuniSpacing.lg,
+                                                        vertical = MuniSpacing.sm
+                                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                        ) {
+                                Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Volver",
+                                        tint = Color.White,
                                         modifier =
-                                                Modifier.fillMaxWidth()
-                                                        .background(
-                                                                Brush.horizontalGradient(
-                                                                        colors =
-                                                                                listOf(
-                                                                                        Color(
-                                                                                                0xFF001F5C
-                                                                                        ),
-                                                                                        Color(
-                                                                                                0xFF023075
-                                                                                        ),
-                                                                                        Color(
-                                                                                                0xFF0D47A1
-                                                                                        )
-                                                                                )
-                                                                )
-                                                        )
-                                                        .statusBarsPadding()
-                                                        .padding(
-                                                                horizontal = 20.dp,
-                                                                vertical = 12.dp
-                                                        ),
-                                        verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                        Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Volver",
-                                                tint = Color.White,
-                                                modifier =
-                                                        Modifier.size(24.dp).clickable {
-                                                                navigator.pop()
-                                                        }
-                                        )
+                                                Modifier.size(24.dp).clickable {
+                                                        navigator.pop()
+                                                }
+                                )
 
-                                        Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
-                                        Image(
-                                                painter =
-                                                        painterResource(
-                                                                Res.drawable.logo_muni_arica
-                                                        ),
-                                                contentDescription = "Logo",
-                                                modifier =
-                                                        Modifier.size(48.dp)
-                                                                .clip(RoundedCornerShape(8.dp))
-                                                                .background(
-                                                                        Color.White.copy(
-                                                                                alpha = 0.1f
-                                                                        )
-                                                                )
-                                                                .padding(4.dp),
-                                                contentScale = ContentScale.Fit
-                                        )
+                                        MuniTopBarLogo()
 
-                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
                                         Column {
                                                 Text(
-                                                        text = "Editar Perfil",
+                                                        text = "Mi Perfil",
                                                         color = Color.White,
                                                         fontWeight = FontWeight.Bold,
-                                                        style = MaterialTheme.typography.titleLarge,
-                                                        fontSize = 22.sp
+                                                        style = MaterialTheme.typography.titleLarge
                                                 )
                                                 Text(
-                                                        text = "Actualiza tu información",
-                                                        color = Color.White.copy(alpha = 0.9f),
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        fontSize = 12.sp
+                                                        text = "Gestiona tu cuenta",
+                                                        color = Color.White.copy(alpha = 0.8f),
+                                                        style = MaterialTheme.typography.bodySmall
                                                 )
                                         }
                                 }
@@ -151,13 +123,11 @@ class EditProfileScreen : Screen {
                                                 },
                                                 label = { Text("Nombre") },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 colors =
                                                         OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor =
-                                                                        Color(0xFF043CC7),
-                                                                focusedLabelColor =
-                                                                        Color(0xFF043CC7)
+                                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                                focusedLabelColor = MuniColors.primaryBlue
                                                         )
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -170,13 +140,11 @@ class EditProfileScreen : Screen {
                                                 },
                                                 label = { Text("Apellido") },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 colors =
                                                         OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor =
-                                                                        Color(0xFF043CC7),
-                                                                focusedLabelColor =
-                                                                        Color(0xFF043CC7)
+                                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                                focusedLabelColor = MuniColors.primaryBlue
                                                         )
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -189,13 +157,11 @@ class EditProfileScreen : Screen {
                                                 },
                                                 label = { Text("Correo Electrónico") },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 colors =
                                                         OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor =
-                                                                        Color(0xFF043CC7),
-                                                                focusedLabelColor =
-                                                                        Color(0xFF043CC7)
+                                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                                focusedLabelColor = MuniColors.primaryBlue
                                                         )
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -208,13 +174,11 @@ class EditProfileScreen : Screen {
                                                 },
                                                 label = { Text("Teléfono") },
                                                 modifier = Modifier.fillMaxWidth(),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 colors =
                                                         OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor =
-                                                                        Color(0xFF043CC7),
-                                                                focusedLabelColor =
-                                                                        Color(0xFF043CC7)
+                                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                                focusedLabelColor = MuniColors.primaryBlue
                                                         )
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
@@ -227,14 +191,12 @@ class EditProfileScreen : Screen {
                                                 },
                                                 label = { Text("Acerca de") },
                                                 modifier = Modifier.fillMaxWidth().height(120.dp),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 maxLines = 5,
                                                 colors =
                                                         OutlinedTextFieldDefaults.colors(
-                                                                focusedBorderColor =
-                                                                        Color(0xFF043CC7),
-                                                                focusedLabelColor =
-                                                                        Color(0xFF043CC7)
+                                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                                focusedLabelColor = MuniColors.primaryBlue
                                                         )
                                         )
 
@@ -245,11 +207,11 @@ class EditProfileScreen : Screen {
                                                         viewModel.onEvent(ProfileEvent.SaveProfile)
                                                 },
                                                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                                                shape = RoundedCornerShape(12.dp),
+                                                shape = MuniShapes.textField,
                                                 enabled = !state.isLoading,
                                                 colors =
                                                         ButtonDefaults.buttonColors(
-                                                                containerColor = Color(0xFF02BB94)
+                                                                containerColor = MuniColors.accentEmerald
                                                         )
                                         ) {
                                                 if (state.isLoading) {

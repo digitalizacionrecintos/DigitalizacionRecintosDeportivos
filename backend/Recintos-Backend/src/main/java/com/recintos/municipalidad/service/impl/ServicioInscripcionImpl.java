@@ -54,6 +54,14 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
                     .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
         }
 
+        if (tutor != null) {
+            long yaInscrito = repositorioInscripcion.countByEventoAndTutor(evento, tutor);
+            if (yaInscrito > 0) {
+                throw new com.recintos.municipalidad.exception.UsuarioYaInscritoException(
+                        "Ya estás inscrito en este evento");
+            }
+        }
+
         if (evento.getEstado() == null || !"DISPONIBLE".equalsIgnoreCase(evento.getEstado().trim())) {
             throw new RuntimeException(
                     "El evento no está disponible para inscripción (Estado: " + evento.getEstado()
@@ -150,9 +158,10 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
 
         EstadoCurso estado_curso = curso.getEstado();
 
-        if (cantidadAInscribir > curso.getMaximoPorInscripcion()){
+        Integer maximoPorInscripcion = curso.getMaximoPorInscripcion();
+        if (maximoPorInscripcion != null && cantidadAInscribir > maximoPorInscripcion){
             throw new RuntimeException(
-                    "No puedes inscribir mas de " + curso.getMaximoPorInscripcion() + "personas"
+                    "No puedes inscribir mas de " + maximoPorInscripcion + " personas"
             );
         }
 
@@ -164,7 +173,13 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
         }
 
         List<Evento> lista_eventos = curso.getSesiones();
-        /// creo que hay un problema con los apellidos (revisar si se puede hacer mas eficiente esta funcion)
+
+        if (lista_eventos == null || lista_eventos.isEmpty()) {
+            throw new RuntimeException(
+                    "El curso no tiene sesiones disponibles para inscribir"
+            );
+        }
+
         List<InscripcionDTO> lista_inscripcion_curso = inscripciones.getListaInscripcion();
         for (Evento evento : lista_eventos) {
             for (InscripcionDTO inscripcion : lista_inscripcion_curso ){
@@ -182,10 +197,6 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
     @Override
     public SesionDTO verificarEstadoInscripcion(Long idEvento, Long idUsuario) {
 
-        /// ahora los estados inscripcion deben traer informoracion de los inscritos (nombre edad, fechaInscripcion)
-        Usuario usuario = repositorioUsuario.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         Evento evento = repositorioEvento.findById(idEvento)
                 .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
 
@@ -194,10 +205,19 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
         sesionEvento.setFechaInicio( evento.getFechaInicio() );
         sesionEvento.setHoraInicio( evento.getHoraInicio()) ;
         sesionEvento.setHoraFin( evento.getHoraFin() );
+        sesionEvento.setInscrito(false);
 
-        List<Inscripcion> inscripcionesASesion = repositorioInscripcion.findByEventoAndTutor(evento,usuario);
+        List<Inscripcion> inscripciones = repositorioInscripcion.findByEvento(evento);
+        sesionEvento.setInscripciones(inscripciones);
 
-        sesionEvento.setInscripciones( inscripcionesASesion );
+        if (idUsuario != null) {
+            Usuario usuario = repositorioUsuario.findById(idUsuario)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            if (repositorioInscripcion.countByEventoAndTutor(evento, usuario) > 0) {
+                sesionEvento.setInscrito(true);
+            }
+        }
 
         return sesionEvento;
 
@@ -218,12 +238,23 @@ public class ServicioInscripcionImpl implements ServicioInscripcion {
         boolean usuarioInscrito = false;
 
         for (Evento evento : eventos){
-            SesionDTO sesionDTO = verificarEstadoInscripcion(evento.getIdEvento(), idUsuario);
-            sesionesDTO.add(sesionDTO);
+            SesionDTO sesionDTO = new SesionDTO();
+            sesionDTO.setTituloEvento(evento.getTitulo());
+            sesionDTO.setFechaInicio(evento.getFechaInicio());
+            sesionDTO.setHoraInicio(evento.getHoraInicio());
+            sesionDTO.setHoraFin(evento.getHoraFin());
 
-            if (!sesionDTO.getInscripciones().isEmpty()) {
+            List<Inscripcion> inscripciones = repositorioInscripcion.findByEvento(evento);
+            sesionDTO.setInscripciones(inscripciones);
+
+            boolean inscritoEnSesion = repositorioInscripcion.countByEventoAndTutor(evento, usuario) > 0;
+            sesionDTO.setInscrito(inscritoEnSesion);
+
+            if (inscritoEnSesion) {
                 usuarioInscrito = true;
             }
+
+            sesionesDTO.add(sesionDTO);
         }
 
         estadoCursoInscripcion.setInscrito(usuarioInscrito);

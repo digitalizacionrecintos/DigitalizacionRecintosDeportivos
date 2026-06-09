@@ -18,7 +18,7 @@ public interface RepositorioCurso extends JpaRepository<Curso, Long> {
     List<Curso> findByEstado(EstadoCurso estadoCurso);
 
 
-    // metodo para inscribir
+    
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Curso c WHERE c.idCurso = :idCurso")
     Optional<Curso> findByIdParaInscribir(@Param("idCurso") Long idCurso);

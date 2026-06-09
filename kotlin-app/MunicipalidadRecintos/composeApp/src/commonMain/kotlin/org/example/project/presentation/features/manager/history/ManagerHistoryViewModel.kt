@@ -10,17 +10,41 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import org.example.project.core.error.AppError
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.example.project.data.remote.ApiService
+import org.example.project.core.error.Try
 import org.example.project.domain.manager.SessionManager
 import org.example.project.domain.model.Categoria
-import org.example.project.domain.util.DateTimeUtils
+import org.example.project.domain.usecase.event.GetManagerEventsUseCase
 
-class ManagerHistoryViewModel : ScreenModel {
-    private val apiService = ApiService()
+data class ManagerHistoryEvent(
+    val id: String,
+    val title: String,
+    val date: String,
+    val attendeesCount: Int,
+    val categoryName: String,
+    val originalDate: String,
+    val attendees: List<AttendeeInfo>
+)
 
+data class AttendeeInfo(
+    val id: Int,
+    val name: String,
+    val email: String,
+    val attendanceStatus: String
+)
+
+sealed class ManagerHistoryState {
+    data object Loading : ManagerHistoryState()
+    data class Success(val events: List<ManagerHistoryEvent>) : ManagerHistoryState()
+    data class Error(val message: String) : ManagerHistoryState()
+}
+
+class ManagerHistoryViewModel(
+    private val getManagerEventsUseCase: GetManagerEventsUseCase
+) : ScreenModel {
     private val _state = MutableStateFlow<ManagerHistoryState>(ManagerHistoryState.Loading)
     val state: StateFlow<ManagerHistoryState> = _state.asStateFlow()
 
@@ -32,8 +56,7 @@ class ManagerHistoryViewModel : ScreenModel {
 
     var selectedYear by mutableStateOf<Int?>(null)
     var selectedMonth by mutableStateOf<Int?>(null)
-    var selectedCategoryId by
-            mutableStateOf<Int?>(null)
+    var selectedCategoryId by mutableStateOf<Int?>(null)
     var searchQuery by mutableStateOf("")
 
     init {
@@ -43,88 +66,71 @@ class ManagerHistoryViewModel : ScreenModel {
     fun loadHistory() {
         screenModelScope.launch {
             _state.value = ManagerHistoryState.Loading
-            try {
-                val currentUser = SessionManager.getCurrentUser()
-                val idEncargado = currentUser?.id
+            val currentUser = SessionManager.getCurrentUser()
+            val idEncargado = currentUser?.idUsuario ?: return@launch
 
-                if (idEncargado == null) {
-                    return@launch
-                }
+            when (val result = getManagerEventsUseCase(idEncargado)) {
+                is Try.Success -> {
+                    val finishedEvents = result.value.filter {
+                        val status = it.estado.uppercase()
+                        status == "FINALIZADO" || status == "TERMINADO"
+                    }
 
-                val allEventsDto = apiService.getManagerEventsByEncargado(idEncargado)
+                    val historyEvents = finishedEvents.map { dto ->
+                        ManagerHistoryEvent(
+                            id = dto.idEvento.toString(),
+                            title = dto.titulo,
+                            date = dto.fechaInicio,
+                            attendeesCount = dto.asistentes.size,
+                            categoryName = dto.categoriaName,
+                            originalDate = dto.fechaInicio,
+                            attendees = dto.asistentes.map { a ->
+                                AttendeeInfo(
+                                    id = a.idInscripcion,
+                                    name = a.nombreCompleto,
+                                    email = a.correo,
+                                    attendanceStatus = a.estadoAsistencia
+                                )
+                            }
+                        )
+                    }
 
-                val managerHistoryEvents =
-                        allEventsDto.filter {
-                            val status = it.estado.uppercase()
-                            val isFinished = status == "FINALIZADO" || status == "TERMINADO"
-                            isFinished
+                    val eventYears = finishedEvents
+                        .mapNotNull {
+                            try {
+                                val datePart = it.fechaInicio.substringBefore("T").substringBefore(" ")
+                                LocalDate.parse(datePart).year
+                            } catch (e: Exception) { null }
                         }
+                        .distinct()
+                        .sortedDescending()
 
-                val historyEvents =
-                        managerHistoryEvents.map { dto ->
-                            ManagerHistoryEvent(
-                                    id = dto.idEvento.toString(),
-                                    title = dto.titulo,
-                                    date =
-                                            DateTimeUtils.formatEventDate(
-                                                    dto.fechaInicio,
-                                                    dto.horaInicio
-                                            ),
-                                    attendeesCount = dto.asistentes.size,
-                                    categoryName = dto.categoria?.nombre ?: "Sin categoría",
-                                    originalDate = dto.fechaInicio,
-                                    attendees =
-                                            dto.asistentes.map { attendee ->
-                                                AttendeeInfo(
-                                                        id = attendee.idInscripcion,
-                                                        name = attendee.nombreCompleto,
-                                                        email = attendee.correo,
-                                                        attendanceStatus = attendee.estadoAsistencia
-                                                )
-                                            }
-                            )
-                        }
+                    val currentYear = Clock.System.now()
+                        .toLocalDateTime(TimeZone.currentSystemDefault()).year
+                    _years.value = if (eventYears.isNotEmpty()) eventYears else listOf(currentYear)
 
-                val eventYears =
-                        historyEvents
-                                .mapNotNull {
-                                    try {
-                                        val datePart =
-                                                it.originalDate
-                                                        .substringBefore("T")
-                                                        .substringBefore(" ")
-                                        LocalDate.parse(datePart).year
-                                    } catch (e: Exception) {
-                                        null
-                                    }
-                                }
-                                .distinct()
-                                .sortedDescending()
+                    val eventCategories = finishedEvents
+                        .map { Categoria(0, it.categoriaName, "") }
+                        .distinctBy { it.nombre }
+                        .sortedBy { it.nombre }
+                    _categories.value = eventCategories
 
-                val currentYear =
-                        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-                val displayYears = if (eventYears.isNotEmpty()) eventYears else listOf(currentYear)
+                    if (selectedYear == null && _years.value.isNotEmpty()) {
+                        selectedYear = _years.value.first()
+                    }
 
-                _years.value = displayYears
-
-                val eventCategories =
-                        managerHistoryEvents
-                                .mapNotNull { it.categoria }
-                                .distinctBy { it.id }
-                                .map { Categoria(it.id, it.nombre, "") }
-                                .sortedBy { it.nombre }
-
-                _categories.value = eventCategories
-
-                if (selectedYear == null && displayYears.isNotEmpty()) {
-                    selectedYear = displayYears.first()
+                    applyFilters(historyEvents)
                 }
-
-                applyFilters(historyEvents)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _state.value =
-                        ManagerHistoryState.Error("Error al cargar el historial: ${e.message}")
+                is Try.Failure -> {
+                    val msg = when (val err = result.error) {
+                        is AppError.Network -> err.message
+                        is AppError.Server -> err.message
+                        is AppError.Unauthorized -> "Credenciales inválidas"
+                        is AppError.NotFound -> "Recurso no encontrado"
+                        is AppError.Unknown -> err.message
+                    }
+                    _state.value = ManagerHistoryState.Error("Error al cargar el historial: $msg")
+                }
             }
         }
     }
@@ -157,47 +163,23 @@ class ManagerHistoryViewModel : ScreenModel {
     }
 
     private fun filterCurrentData() {
-        val filtered =
-                allHistoryEvents.filter { event ->
+        val filtered = allHistoryEvents.filter { event ->
+            val searchMatch = searchQuery.isBlank() ||
+                event.title.contains(searchQuery, ignoreCase = true) ||
+                event.categoryName.contains(searchQuery, ignoreCase = true)
 
-                    val searchMatch =
-                            if (searchQuery.isBlank()) {
-                                true
-                            } else {
-                                event.title.contains(searchQuery, ignoreCase = true) ||
-                                        event.categoryName.contains(searchQuery, ignoreCase = true)
-                            }
+            val eventDatePart = event.originalDate.substringBefore("T").substringBefore(" ")
+            val eventYear = try { LocalDate.parse(eventDatePart).year } catch (e: Exception) { -1 }
+            val yearMatch = selectedYear == null || eventYear == selectedYear
 
-                    val eventDatePart = event.originalDate.substringBefore("T").substringBefore(" ")
-                    val eventYear =
-                            try {
-                                LocalDate.parse(eventDatePart).year
-                            } catch (e: Exception) {
-                                -1
-                            }
-                    val yearMatch = selectedYear == null || eventYear == selectedYear
+            val eventMonth = try { LocalDate.parse(eventDatePart).monthNumber } catch (e: Exception) { -1 }
+            val monthMatch = selectedMonth == null || eventMonth == selectedMonth
 
-                    val eventMonth =
-                            try {
-                                LocalDate.parse(eventDatePart).monthNumber
-                            } catch (e: Exception) {
-                                -1
-                            }
-                    val monthMatch = selectedMonth == null || eventMonth == selectedMonth
+            val categoryName = _categories.value.find { it.id == selectedCategoryId }?.nombre
+            val categoryMatch = selectedCategoryId == null || event.categoryName == categoryName
 
-                    val selectedCategoryName =
-                            _categories.value.find { it.id == selectedCategoryId }?.nombre
-                    val categoryMatch =
-                            selectedCategoryId == null || event.categoryName == selectedCategoryName
-
-                    searchMatch && yearMatch && monthMatch && categoryMatch
-                }
+            searchMatch && yearMatch && monthMatch && categoryMatch
+        }
         _state.value = ManagerHistoryState.Success(filtered)
     }
-}
-
-sealed class ManagerHistoryState {
-    object Loading : ManagerHistoryState()
-    data class Success(val events: List<ManagerHistoryEvent>) : ManagerHistoryState()
-    data class Error(val message: String) : ManagerHistoryState()
 }

@@ -18,9 +18,9 @@ export class DistribucionMensualChartComponent implements OnInit {
 
   ngOnInit():void {
 
-    // mesesStats
-    // maxEventoMes
-    // mesMasEventos
+    
+    
+    
   } 
   
   abrirModalInfo(titulo : string, descripcion: string){}

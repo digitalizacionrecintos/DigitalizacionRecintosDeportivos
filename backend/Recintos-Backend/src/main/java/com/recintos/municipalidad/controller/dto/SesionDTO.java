@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-// este es cada sesiones de los cursos con varios participante por id
+
 public class SesionDTO {
 
     String tituloEvento;
@@ -17,5 +17,6 @@ public class SesionDTO {
     LocalDateTime horaInicio;
     LocalDateTime horaFin;
     List<Inscripcion> inscripciones;
+    boolean inscrito;
 
 }

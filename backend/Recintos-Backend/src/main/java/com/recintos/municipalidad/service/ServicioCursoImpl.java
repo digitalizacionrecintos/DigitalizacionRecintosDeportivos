@@ -44,12 +44,12 @@ public class ServicioCursoImpl implements ServicioCurso {
             curso.getHorarios().forEach(h -> h.setCurso(curso));
         }
 
-        // Set default status if null
+        
         if (curso.getEstado() == null) {
             curso.setEstado(com.recintos.municipalidad.model.enums.EstadoCurso.BORRADOR);
         }
 
-        actualizarDiasString(curso); // Populate legacy field
+        actualizarDiasString(curso); 
         Curso cursoGuardado = repositorioCurso.save(curso);
         generarSesiones(cursoGuardado);
         return cursoGuardado;
@@ -61,28 +61,28 @@ public class ServicioCursoImpl implements ServicioCurso {
         }
 
         List<Evento> sesiones = new ArrayList<>();
-        // Fetch existing sessions to avoid duplication
+        
         List<Evento> existingSessions = repositorioEvento.findByCurso(curso);
 
         LocalDate fechaActual = curso.getFechaInicio();
 
-        // Count existing for numbering (approximate)
+        
         int numeroSesion = existingSessions.size() + 1;
-        // Wait, if we are in a loop, we need to know the 'max' existing session number?
-        // Parsing titles is brittle. Let's just use an incremental counter + existing
-        // count, but duplicated sessions issue remains.
+        
+        
+        
 
-        // Simpler logic: Only add if NOT exists.
+        
 
-        // Support for flexible schedules
+        
         if (curso.getHorarios() != null && !curso.getHorarios().isEmpty()) {
             while (!fechaActual.isAfter(curso.getFechaFin())) {
-                final LocalDate currentKeyDate = fechaActual; // for lambda
+                final LocalDate currentKeyDate = fechaActual; 
                 DayOfWeek currentDay = fechaActual.getDayOfWeek();
 
                 for (CursoHorario horario : curso.getHorarios()) {
                     if (horario.getDia() == currentDay) {
-                        // Check if session exists
+                        
                         Optional<Evento> existing = existingSessions.stream()
                                 .filter(e -> e.getFechaInicio().equals(currentKeyDate) &&
                                         e.getHoraInicio().toLocalTime().equals(horario.getHoraInicio()))
@@ -90,7 +90,7 @@ public class ServicioCursoImpl implements ServicioCurso {
 
                         if (existing.isPresent()) {
                             Evento e = existing.get();
-                            // Update fields to match current Curso state
+                            
                             e.setCupoMaximo(curso.getCupo());
                             e.setRecinto(curso.getRecinto());
                             e.setEncargado(curso.getEncargado());
@@ -109,7 +109,7 @@ public class ServicioCursoImpl implements ServicioCurso {
                 fechaActual = fechaActual.plusDays(1);
             }
         }
-        // Backward compatibility
+        
         else if (curso.getDias() != null) {
             Set<DayOfWeek> diasPermitidos = Arrays.stream(curso.getDias().split(","))
                     .map(String::trim)
@@ -119,7 +119,7 @@ public class ServicioCursoImpl implements ServicioCurso {
 
             while (!fechaActual.isAfter(curso.getFechaFin())) {
                 if (diasPermitidos.contains(fechaActual.getDayOfWeek())) {
-                    final LocalDate constFecha = fechaActual; // final for lambda
+                    final LocalDate constFecha = fechaActual; 
                     Optional<Evento> existing = existingSessions.stream()
                             .filter(e -> e.getFechaInicio().equals(constFecha))
                             .findFirst();
@@ -154,7 +154,7 @@ public class ServicioCursoImpl implements ServicioCurso {
 
     private Evento crearEventoBase(Curso curso, LocalDate fecha, int numeroSesion) {
         Evento evento = new Evento();
-        evento.setTitulo(curso.getNombre() + " - Sesión " + numeroSesion);
+        evento.setTitulo(curso.getNombre() + " - SesiÃ³n " + numeroSesion);
         evento.setDescripcion(curso.getDescripcion());
         evento.setFechaInicio(fecha);
         evento.setCupoMaximo(curso.getCupo());
@@ -181,7 +181,7 @@ public class ServicioCursoImpl implements ServicioCurso {
             c.setEncargado(curso.getEncargado());
             c.setCategoria(curso.getCategoria());
 
-            // Update schedules
+            
             if (c.getHorarios() == null) {
                 c.setHorarios(new ArrayList<>());
             }
@@ -193,7 +193,7 @@ public class ServicioCursoImpl implements ServicioCurso {
                 });
             }
 
-            // Populate legacy 'dias' field for display in lists
+            
             actualizarDiasString(c);
 
             Curso cursoGuardado = repositorioCurso.save(c);
@@ -221,13 +221,13 @@ public class ServicioCursoImpl implements ServicioCurso {
             case TUESDAY:
                 return "Martes";
             case WEDNESDAY:
-                return "Miércoles";
+                return "MiÃ©rcoles";
             case THURSDAY:
                 return "Jueves";
             case FRIDAY:
                 return "Viernes";
             case SATURDAY:
-                return "Sábado";
+                return "SÃ¡bado";
             case SUNDAY:
                 return "Domingo";
             default:
@@ -242,7 +242,7 @@ public class ServicioCursoImpl implements ServicioCurso {
         try {
             return DayOfWeek.valueOf(normalized);
         } catch (IllegalArgumentException e) {
-            // Try translating Spanish to English
+            
             switch (normalized) {
                 case "LUNES":
                     return DayOfWeek.MONDAY;
@@ -255,7 +255,7 @@ public class ServicioCursoImpl implements ServicioCurso {
                 case "VIERNES":
                     return DayOfWeek.FRIDAY;
                 case "SABADO":
-                case "SÁBADO":
+                case "SÃBADO":
                     return DayOfWeek.SATURDAY;
                 case "DOMINGO":
                     return DayOfWeek.SUNDAY;
@@ -272,7 +272,7 @@ public class ServicioCursoImpl implements ServicioCurso {
 
     @Override
     public List<Curso> listarCursosDisponibles(){
-        List<Curso> cursosDisponibles = this.repositorioCurso.findByEstado(EstadoCurso.EN_PROGRESO);
+        List<Curso> cursosDisponibles = this.repositorioCurso.findByEstado(EstadoCurso.PUBLICADO);
 
         if (cursosDisponibles.isEmpty()){
             System.out.println("No hay cursos disponibles");

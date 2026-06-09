@@ -1,150 +1,118 @@
 package org.example.project.presentation.features.events.detail
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.example.project.data.remote.ApiService
+import org.example.project.core.error.Try
+import org.example.project.core.error.displayMessage
 import org.example.project.domain.manager.SessionManager
-import org.example.project.domain.model.Event
+import org.example.project.domain.repository.EventRepository
+import org.example.project.domain.repository.ParticipanteInfo
+import org.example.project.domain.usecase.event.EnrollUserUseCase
+import org.example.project.domain.usecase.event.GetEventDetailUseCase
 
-class EventDetailViewModel : ViewModel() {
-
+class EventDetailViewModel(
+    private val getEventDetailUseCase: GetEventDetailUseCase,
+    private val enrollUserUseCase: EnrollUserUseCase,
+    private val eventRepository: EventRepository
+) : ScreenModel {
     private val _state = MutableStateFlow(EventDetailState())
     val state = _state.asStateFlow()
 
-    private val apiService = ApiService()
-
     fun checkTutorialStatus() {
-
     }
 
     fun dismissTooltip() {
-
     }
 
     fun loadEvent(eventId: String) {
         val currentUser = SessionManager.getCurrentUser()
-        viewModelScope.launch {
+        screenModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            try {
-
-                if (eventId.startsWith("temp_")) {
-                    _state.update { it.copy(isLoading = false, event = null) }
-                    return@launch
-                }
-
-                val idInt = eventId.toIntOrNull()
-                if (idInt == null) {
-                    _state.update { it.copy(isLoading = false) }
-                    return@launch
-                }
-
-                val dto = apiService.getEventById(idInt)
-                println("\n=== DEBUG: Event DTO Received ===")
-                println("Event ID: ${dto.id}")
-                println("Title: ${dto.titulo}")
-                println("Description: ${dto.descripcion}")
-                println("Cupo Máximo: ${dto.cupoMaximo}")
-                println("Recinto: ${dto.recinto}")
-                println("Encargado: ${dto.encargado}")
-                println("Categoría: ${dto.categoria}")
-                println("================================\n")
-
-                if (dto.titulo.isBlank()) {}
-                if (dto.descripcion.isBlank()) {}
-
-                println("\n=== DEBUG: Checking Enrollment Status ===")
-                println("Event ID: $idInt")
-                println("User ID: ${currentUser?.id ?: 0}")
-                val isEnrolled = apiService.checkEnrollment(idInt, currentUser?.id ?: 0)
-                println("\n=== DEBUG: Enrollment Response ===")
-                println("yaInscrito: ${isEnrolled.yaInscrito}")
-                println("cupoDisponible: ${isEnrolled.cupoDisponible}")
-                println("puedeInscribirse: ${isEnrolled.puedeInscribirse}")
-                println("mensaje: ${isEnrolled.mensaje}")
-                println("================================\n")
-
-                val event =
-                        Event(
-                                id = dto.id?.toString()
-                                                ?: eventId,
-                                title = dto.titulo,
-                                imagenUrl = dto.imagenUrl?.takeIf { it.isNotBlank() }
-                                                ?: dto.recinto?.imagenUrl ?: "",
-                                location = dto.recinto?.nombre ?: "Sin Recinto",
-                                date =
-                                        org.example.project.domain.util.DateTimeUtils
-                                                .formatEventDate(dto.fechaInicio, dto.horaInicio),
-                                description = dto.descripcion,
-                                organizerName = "Encargado ${dto.encargadoId ?: "?"}",
-                                isEnrolled = !isEnrolled.puedeInscribirse,
-                                canEnroll =
-                                        isEnrolled.puedeInscribirse,
-                                enrolledStatus = isEnrolled.mensaje,
-                                recinto = dto.recinto,
-                                encargado = dto.encargado,
-                                categoria = dto.categoria,
-                                cupoMaximo = dto.cupoMaximo
-                        )
-
-                println("\n=== DEBUG: Event Model Created ===")
-                println("Event ID: ${event.id}")
-                println("Title: ${event.title}")
-                println("isEnrolled: ${event.isEnrolled} (mapped from !puedeInscribirse)")
-                println("canEnroll: ${event.canEnroll} (mapped from puedeInscribirse)")
-                println("enrolledStatus: ${event.enrolledStatus} (mensaje from backend)")
-                println("================================\n")
-
-                _state.update { it.copy(isLoading = false, event = event) }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val idInt = eventId.toIntOrNull()
+            if (idInt == null || eventId.startsWith("temp_")) {
                 _state.update { it.copy(isLoading = false, event = null) }
+                return@launch
+            }
+
+            when (val result = getEventDetailUseCase(idInt)) {
+                is Try.Success -> {
+                    var event = result.value
+                    if (currentUser != null) {
+                        val enrollment = eventRepository.checkEnrollment(idInt, currentUser.idUsuario)
+                        event = event.copy(
+                            isEnrolled = !enrollment.puedeInscribirse,
+                            canEnroll = enrollment.puedeInscribirse,
+                            enrolledStatus = enrollment.mensaje
+                        )
+                    }
+                    _state.update { it.copy(isLoading = false, event = event) }
+                }
+                is Try.Failure -> {
+                    _state.update { it.copy(isLoading = false, event = null) }
+                }
             }
         }
     }
 
-    fun inscribeUser() {
-        val currentUser = SessionManager.getCurrentUser()
-        val eventId = _state.value.event?.id?.toIntOrNull()
-
-        if (currentUser == null || eventId == null) {
-            _state.update { it.copy(feedbackMessage = "Error: Usuario o evento no válido") }
-            return
-        }
-
-        viewModelScope.launch {
-
-            println("\n=== DEBUG: Starting Inscription ===")
-            println("User ID: ${currentUser.id}")
-            println("Event ID: $eventId")
-            println("================================\n")
-
-            try {
-                val message = apiService.registerInscription(eventId, currentUser.id)
-                println("\n=== DEBUG: Inscription Response ===")
-                println("Success Message: $message")
-                println("================================\n")
-
-                _state.update { it.copy(feedbackMessage = message) }
-
-                println("\n=== DEBUG: Reloading Event After Inscription ===")
-                loadEvent(eventId.toString())
-            } catch (e: Exception) {
-                println("\n=== DEBUG: Inscription Error ===")
-                println("Error Type: ${e::class.simpleName}")
-                println("Error Message: ${e.message}")
-                println("================================\n")
-
-                _state.update { it.copy(feedbackMessage = "Error: ${e.message}") }
+    fun onEvent(event: EventDetailEvent) {
+        when (event) {
+            is EventDetailEvent.OnBackClick -> {}
+            is EventDetailEvent.AddParticipante -> {
+                val list = _state.value.participantes.toMutableList()
+                list.add(ParticipanteUI())
+                _state.update { it.copy(participantes = list) }
+            }
+            is EventDetailEvent.RemoveParticipante -> {
+                val list = _state.value.participantes.toMutableList()
+                if (list.size > 1) list.removeAt(event.index)
+                _state.update { it.copy(participantes = list) }
+            }
+            is EventDetailEvent.UpdateParticipanteNombre -> {
+                val list = _state.value.participantes.toMutableList()
+                list[event.index] = list[event.index].copy(nombre = event.nombre)
+                _state.update { it.copy(participantes = list) }
+            }
+            is EventDetailEvent.UpdateParticipanteApellido -> {
+                val list = _state.value.participantes.toMutableList()
+                list[event.index] = list[event.index].copy(apellido = event.apellido)
+                _state.update { it.copy(participantes = list) }
+            }
+            is EventDetailEvent.UpdateParticipanteEdad -> {
+                val list = _state.value.participantes.toMutableList()
+                list[event.index] = list[event.index].copy(edad = event.edad)
+                _state.update { it.copy(participantes = list) }
+            }
+            is EventDetailEvent.Enroll -> enroll()
+            is EventDetailEvent.ClearFeedback -> {
+                _state.update { it.copy(feedbackMessage = null) }
             }
         }
     }
 
-    fun clearFeedback() {
-        _state.update { it.copy(feedbackMessage = null) }
+    private fun enroll() {
+        val event = _state.value.event ?: return
+        val userId = SessionManager.getCurrentUser()?.idUsuario ?: return
+        val eventId = event.id.toIntOrNull() ?: return
+        val participantes = _state.value.participantes.map {
+            ParticipanteInfo(nombre = it.nombre, apellido = it.apellido, edad = it.edad.toIntOrNull() ?: 0)
+        }
+
+        screenModelScope.launch {
+            _state.update { it.copy(isEnrolling = true) }
+            when (val result = enrollUserUseCase(eventId, userId, participantes)) {
+                is Try.Success -> {
+                    _state.update { it.copy(isEnrolling = false, feedbackMessage = "Inscripción exitosa") }
+                    loadEvent(eventId.toString())
+                }
+                is Try.Failure -> {
+                    _state.update { it.copy(isEnrolling = false, feedbackMessage = result.error.displayMessage()) }
+                }
+            }
+        }
     }
 }

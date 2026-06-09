@@ -59,9 +59,14 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.client.logging)
 
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation("cafe.adriel.voyager:voyager-koin:${voyagerVersion}")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

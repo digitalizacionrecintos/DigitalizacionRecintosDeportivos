@@ -21,6 +21,12 @@ public class CsrfValidationFilter extends OncePerRequestFilter {
     private static final String CSRF_COOKIE = "csrfToken";
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/user/login") || path.startsWith("/api/user/register");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String method = request.getMethod();

@@ -32,7 +32,7 @@
           <h1 class="text-4xl font-bold text-white">Eventos</h1>
           <button (click)="mostrarModalInfo = true"
             class="text-white/70 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-            title="Información de estados">
+            title="InformaciÃ³n de estados">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -52,9 +52,9 @@
       </div>
 
 
-      <!-- Search Bar with Integrated Filters -->
+      
       <div class="bg-white rounded-lg p-3 mb-4 shadow-md">
-        <!-- Search Input -->
+        
         <div class="relative mb-2">
           <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar eventos..."
             class="w-full h-10 rounded-lg pl-4 pr-10 text-gray-700 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0045AB] text-sm">
@@ -66,7 +66,7 @@
           </button>
         </div>
 
-        <!-- Toggle Filters Button -->
+        
         <button (click)="mostrarFiltros = !mostrarFiltros"
           class="w-full flex items-center justify-between px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all border border-gray-200 text-sm font-semibold text-gray-700">
           <div class="flex items-center gap-2">
@@ -86,22 +86,22 @@
           </svg>
         </button>
 
-        <!-- Additional Filters (Collapsible) -->
+        
         <div *ngIf="mostrarFiltros" class="mt-3 pt-3 border-t border-gray-200">
           <div class="grid grid-cols-1 gap-2">
-            <!-- Category Filter -->
+            
             <div>
-              <label class="block text-gray-600 text-xs font-semibold mb-1">Categoría</label>
+              <label class="block text-gray-600 text-xs font-semibold mb-1">CategorÃ­a</label>
               <select [(ngModel)]="categoriaFiltro"
                 class="w-full px-2 py-1.5 bg-gray-50 text-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-xs">
-                <option [ngValue]="null">Todas las categorías</option>
+                <option [ngValue]="null">Todas las categorÃ­as</option>
                 <option *ngFor="let cat of categorias" [ngValue]="cat.id">
                   {{ cat.nombre }}
                 </option>
               </select>
             </div>
 
-            <!-- Date Range -->
+            
             <div>
               <label class="block text-gray-600 text-xs font-semibold mb-1">Rango de fechas</label>
               <div class="flex gap-1">
@@ -112,20 +112,20 @@
               </div>
             </div>
 
-            <!-- Inscriptions Count Range -->
+            
             <div>
               <label class="block text-gray-600 text-xs font-semibold mb-1">Cantidad de inscritos</label>
               <div class="flex gap-1 items-center">
-                <input [(ngModel)]="inscritosMin" type="number" placeholder="Mínimo" min="0"
+                <input [(ngModel)]="inscritosMin" type="number" placeholder="MÃ­nimo" min="0"
                   class="flex-1 px-2 py-1.5 bg-gray-50 text-gray-700 placeholder-gray-400 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-xs">
                 <span class="text-gray-400 text-xs">-</span>
-                <input [(ngModel)]="inscritosMax" type="number" placeholder="Máximo" min="0"
+                <input [(ngModel)]="inscritosMax" type="number" placeholder="MÃ¡ximo" min="0"
                   class="flex-1 px-2 py-1.5 bg-gray-50 text-gray-700 placeholder-gray-400 rounded-lg outline-none focus:ring-2 focus:ring-[#0045AB] border border-gray-200 transition-all text-xs">
               </div>
             </div>
           </div>
 
-          <!-- Clear Filters Button -->
+          
           <div *ngIf="tieneFiltrosAdicionalesActivos()" class="mt-2 flex justify-end">
             <button (click)="limpiarFiltrosAdicionales()"
               class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all flex items-center gap-1 text-xs font-semibold border border-red-200">
@@ -138,7 +138,7 @@
         </div>
       </div>
 
-      <!-- State Filter Buttons -->
+      
       <div class="flex flex-wrap items-center gap-2 mb-2">
         <div class="bg-gray-300 text-gray-700 px-3 py-1.5 rounded font-bold text-xs">FILTROS</div>
         <button (click)="filtroActivo = 'EN_ESPERA'" [class.ring-2]="filtroActivo === 'EN_ESPERA'"
@@ -176,7 +176,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          {{ ordenFecha === 'asc' ? 'Menos reciente' : 'Más reciente' }}
+          {{ ordenFecha === 'asc' ? 'Menos reciente' : 'MÃ¡s reciente' }}
           <svg *ngIf="ordenFecha === 'asc'" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
           </svg>
@@ -373,7 +373,7 @@
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-xs text-[#85690F] font-bold uppercase">Categoría</p>
+              <p class="text-xs text-[#85690F] font-bold uppercase">CategorÃ­a</p>
               <p class="text-sm font-bold text-gray-900 truncate">{{ eventoSeleccionado.categoria.nombre }}</p>
             </div>
           </div>
@@ -404,7 +404,7 @@
               </svg>
             </div>
             <h4 class="text-lg font-bold text-yellow-700 mb-2">Evento en Espera</h4>
-            <p class="text-sm text-yellow-600 mb-4">Este evento aún no está disponible para inscripciones</p>
+            <p class="text-sm text-yellow-600 mb-4">Este evento aÃºn no estÃ¡ disponible para inscripciones</p>
             <button (click)="activarEvento()" [disabled]="activandoEvento"
               class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
               <svg *ngIf="!activandoEvento" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -465,7 +465,7 @@
 
 
         <div class="mb-6">
-          <h3 class="text-sm font-bold text-gray-700 mb-2">Descripción</h3>
+          <h3 class="text-sm font-bold text-gray-700 mb-2">DescripciÃ³n</h3>
           <p class="text-sm text-gray-600 leading-relaxed">{{ eventoSeleccionado.descripcion }}</p>
         </div>
 
@@ -528,10 +528,10 @@
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h3 class="text-2xl font-bold text-gray-900 mb-2">¿Eliminar evento?</h3>
+      <h3 class="text-2xl font-bold text-gray-900 mb-2">Â¿Eliminar evento?</h3>
       <p class="text-gray-600 mb-6">
-        ¿Estás seguro de que deseas eliminar <strong>{{ eventoAEliminar?.titulo }}</strong>?
-        Esta acción no se puede deshacer.
+        Â¿EstÃ¡s seguro de que deseas eliminar <strong>{{ eventoAEliminar?.titulo }}</strong>?
+        Esta acciÃ³n no se puede deshacer.
       </p>
       <div class="flex gap-4">
         <button (click)="eliminarEvento()" [disabled]="eliminando"
@@ -580,7 +580,7 @@
 
     <div class="p-6 space-y-4">
       <p class="text-gray-600 text-sm mb-4">
-        Esta guía te ayudará a entender en qué etapa se encuentra cada evento según su color y etiqueta.
+        Esta guÃ­a te ayudarÃ¡ a entender en quÃ© etapa se encuentra cada evento segÃºn su color y etiqueta.
       </p>
 
 
@@ -589,9 +589,9 @@
           EN ESPERA
         </div>
         <div>
-          <p class="text-gray-800 font-bold text-sm">Próximamente</p>
-          <p class="text-gray-600 text-xs">El evento aún no ha comenzado. Las inscripciones pueden no estar abiertas
-            todavía.</p>
+          <p class="text-gray-800 font-bold text-sm">PrÃ³ximamente</p>
+          <p class="text-gray-600 text-xs">El evento aÃºn no ha comenzado. Las inscripciones pueden no estar abiertas
+            todavÃ­a.</p>
         </div>
       </div>
 
@@ -602,7 +602,7 @@
         </div>
         <div>
           <p class="text-gray-800 font-bold text-sm">Abierto a inscripciones</p>
-          <p class="text-gray-600 text-xs">El evento está activo y vigente. Las personas ahora pueden inscribirse al
+          <p class="text-gray-600 text-xs">El evento estÃ¡ activo y vigente. Las personas ahora pueden inscribirse al
             evento.</p>
         </div>
       </div>
@@ -614,7 +614,7 @@
         </div>
         <div>
           <p class="text-gray-800 font-bold text-sm">Transcurriendo ahora</p>
-          <p class="text-gray-600 text-xs">El evento se está llevando a cabo en este preciso momento.</p>
+          <p class="text-gray-600 text-xs">El evento se estÃ¡ llevando a cabo en este preciso momento.</p>
         </div>
       </div>
 
@@ -636,7 +636,7 @@
         </div>
         <div>
           <p class="text-gray-800 font-bold text-sm">Cancelado</p>
-          <p class="text-gray-600 text-xs">El evento ha sido cancelado y no está disponible para inscripciones.</p>
+          <p class="text-gray-600 text-xs">El evento ha sido cancelado y no estÃ¡ disponible para inscripciones.</p>
         </div>
       </div>
     </div>

@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
@@ -27,6 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -40,15 +43,19 @@ import kotlinx.coroutines.launch
 import municipalidadrecintos.composeapp.generated.resources.Res
 import municipalidadrecintos.composeapp.generated.resources.logo_muni_arica
 import org.example.project.presentation.MainScreen
+import org.example.project.domain.usecase.auth.LoginUseCase
+import org.example.project.domain.usecase.auth.RegisterUseCase
 import org.example.project.presentation.components.MuniTextField
 import org.example.project.presentation.features.config.ServerConfigScreen
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 class LoginScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                val viewModel = remember { LoginViewModel() }
+                val loginUseCase: LoginUseCase = koinInject()
+                val viewModel = remember { LoginViewModel(loginUseCase) }
                 val state by viewModel.state.collectAsState()
 
                 LaunchedEffect(state.isLoggedIn) {
@@ -72,8 +79,7 @@ fun LoginScreenContent(
         onEvent: (LoginEvent) -> Unit,
         onSettingsClick: () -> Unit
 ) {
-        val gradientBrush =
-                Brush.verticalGradient(0.0f to Color(0xFF043CC7), 1.0f to Color(0xFF3DBAD7))
+        val gradientBrush = MuniGradients.primaryVertical
 
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
@@ -95,7 +101,7 @@ fun LoginScreenContent(
                                 Icon(
                                         imageVector = Icons.Default.Settings,
                                         contentDescription = "Configuración del Servidor",
-                                        tint = Color.White.copy(alpha = 0.7f)
+                                        tint = MuniColors.surfaceCard.copy(alpha = 0.7f)
                                 )
                         }
                 }
@@ -115,13 +121,12 @@ fun LoginScreenContent(
 
                         Text(
                                 text = "Bienvenido",
-                                color = Color.White,
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold
+                                color = MuniColors.surfaceCard,
+                                style = MaterialTheme.typography.displayLarge
                         )
                         Text(
                                 text = "Inicia sesión para continuar",
-                                color = Color.White.copy(alpha = 0.8f),
+                                color = MuniColors.surfaceCard.copy(alpha = 0.8f),
                                 fontSize = 16.sp
                         )
 
@@ -132,7 +137,7 @@ fun LoginScreenContent(
                                 onValueChange = { onEvent(LoginEvent.OnEmailChange(it)) },
                                 placeholder = "Correo electrónico",
                                 leadingIcon = {
-                                        Icon(Icons.Default.Email, null, tint = Color(0xFF043CC7))
+                                        Icon(Icons.Default.Email, null, tint = MuniColors.primaryBlue)
                                 },
                                 modifier = Modifier.fillMaxWidth()
                         )
@@ -144,7 +149,7 @@ fun LoginScreenContent(
                                 onValueChange = { onEvent(LoginEvent.OnPasswordChange(it)) },
                                 placeholder = "Contraseña",
                                 leadingIcon = {
-                                        Icon(Icons.Default.Lock, null, tint = Color(0xFF043CC7))
+                                        Icon(Icons.Default.Lock, null, tint = MuniColors.primaryBlue)
                                 },
                                 trailingIcon = {
                                         IconButton(
@@ -159,7 +164,7 @@ fun LoginScreenContent(
                                                                 if (passwordVisible)
                                                                         "Ocultar contraseña"
                                                                 else "Mostrar contraseña",
-                                                        tint = Color(0xFF043CC7)
+                                                        tint = MuniColors.primaryBlue
                                                 )
                                         }
                                 },
@@ -171,7 +176,7 @@ fun LoginScreenContent(
 
                         if (state.error != null) {
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text(state.error, color = Color(0xFFFF5252), fontSize = 14.sp)
+                                Text(state.error, color = MuniColors.errorRed, fontSize = 14.sp)
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -179,13 +184,13 @@ fun LoginScreenContent(
                         Button(
                                 onClick = { onEvent(LoginEvent.OnLoginClick) },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                                shape = MuniShapes.button,
+                                colors = ButtonDefaults.buttonColors(containerColor = MuniColors.surfaceCard),
                                 enabled = !state.isLoading
                         ) {
                                 if (state.isLoading) {
                                         CircularProgressIndicator(
-                                                color = Color(0xFF043CC7),
+                                                color = MuniColors.primaryBlue,
                                                 modifier = Modifier.size(24.dp)
                                         )
                                 } else {
@@ -193,7 +198,7 @@ fun LoginScreenContent(
                                                 "Ingresar",
                                                 fontSize = 18.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF043CC7)
+                                                color = MuniColors.primaryBlue
                                         )
                                 }
                         }
@@ -231,16 +236,16 @@ fun LoginScreenContent(
                 ModalBottomSheet(
                         onDismissRequest = { showRegisterSheet = false },
                         sheetState = sheetState,
-                        containerColor = Color.White,
-                        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                        containerColor = MuniColors.surfaceCard,
+                        shape = MuniShapes.sheet,
                         dragHandle = {
                                 Box(
                                         modifier =
-                                                Modifier.padding(top = 12.dp)
+                                                Modifier.padding(top = MuniSpacing.sm)
                                                         .width(40.dp)
                                                         .height(4.dp)
-                                                        .clip(RoundedCornerShape(2.dp))
-                                                        .background(Color.LightGray)
+                                                        .clip(MuniShapes.pill)
+                                                        .background(MuniColors.lightGray)
                                 )
                         }
                 ) {
@@ -272,7 +277,7 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
         var errorMessage by remember { mutableStateOf<String?>(null) }
 
         val scope = rememberCoroutineScope()
-        val apiService = remember { org.example.project.data.remote.ApiService() }
+        val registerUseCase: RegisterUseCase = koinInject()
 
         var passwordVisible by remember { mutableStateOf(false) }
         var confirmPasswordVisible by remember { mutableStateOf(false) }
@@ -297,19 +302,7 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                         modifier =
                                                 Modifier.size(48.dp)
                                                         .clip(CircleShape)
-                                                        .background(
-                                                                Brush.linearGradient(
-                                                                        colors =
-                                                                                listOf(
-                                                                                        Color(
-                                                                                                0xFF043CC7
-                                                                                        ),
-                                                                                        Color(
-                                                                                                0xFF3DBAD7
-                                                                                        )
-                                                                                )
-                                                                )
-                                                        ),
+                                                        .background(MuniGradients.primaryVertical),
                                         contentAlignment = Alignment.Center
                                 ) {
                                         Icon(
@@ -323,14 +316,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 Column {
                                         Text(
                                                 "Crear Cuenta",
-                                                fontSize = 24.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF1A1A1A)
+                                                style = MaterialTheme.typography.headlineMedium,
+                                                color = MuniColors.darkGray
                                         )
                                         Text(
                                                 "Únete a los eventos municipales",
-                                                fontSize = 14.sp,
-                                                color = Color.Gray
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MuniColors.mediumGray
                                         )
                                 }
                         }
@@ -339,7 +331,7 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 modifier =
                                         Modifier.size(36.dp)
                                                 .clip(CircleShape)
-                                                .background(Color(0xFFF5F5F5))
+                                                .background(MuniColors.offWhite)
                         ) {
                                 Icon(
                                         Icons.Default.Close,
@@ -356,14 +348,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                 ) {
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0E0E0))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = MuniColors.dividerColor)
                         Text(
                                 "  Información personal  ",
-                                fontSize = 12.sp,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Medium
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MuniColors.mediumGray
                         )
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0E0E0))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = MuniColors.dividerColor)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -380,13 +371,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                         Icon(Icons.Default.Person, null, tint = Color(0xFF043CC7))
                                 },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = MuniShapes.textField,
                                 colors =
                                         OutlinedTextFieldDefaults.colors(
-                                                focusedBorderColor = Color(0xFF043CC7),
-                                                unfocusedBorderColor = Color(0xFFE0E0E0),
-                                                focusedContainerColor = Color(0xFFFAFAFA),
-                                                unfocusedContainerColor = Color(0xFFFAFAFA)
+                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                unfocusedBorderColor = MuniColors.dividerColor,
+                                                focusedContainerColor = MuniColors.ultraLightGray,
+                                                unfocusedContainerColor = MuniColors.ultraLightGray
                                         ),
                                 singleLine = true
                         )
@@ -396,13 +387,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 onValueChange = { apellido = it },
                                 label = { Text("Apellido") },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = MuniShapes.textField,
                                 colors =
                                         OutlinedTextFieldDefaults.colors(
-                                                focusedBorderColor = Color(0xFF043CC7),
-                                                unfocusedBorderColor = Color(0xFFE0E0E0),
-                                                focusedContainerColor = Color(0xFFFAFAFA),
-                                                unfocusedContainerColor = Color(0xFFFAFAFA)
+                                                focusedBorderColor = MuniColors.primaryBlue,
+                                                unfocusedBorderColor = MuniColors.dividerColor,
+                                                focusedContainerColor = MuniColors.ultraLightGray,
+                                                unfocusedContainerColor = MuniColors.ultraLightGray
                                         ),
                                 singleLine = true
                         )
@@ -414,15 +405,15 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                         value = email,
                         onValueChange = { email = it },
                         label = { Text("Correo electrónico") },
-                        leadingIcon = { Icon(Icons.Default.Email, null, tint = Color(0xFF043CC7)) },
+                        leadingIcon = { Icon(Icons.Default.Email, null, tint = MuniColors.primaryBlue) },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MuniShapes.textField,
                         colors =
                                 OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF043CC7),
-                                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                                        focusedContainerColor = Color(0xFFFAFAFA),
-                                        unfocusedContainerColor = Color(0xFFFAFAFA)
+                                        focusedBorderColor = MuniColors.primaryBlue,
+                                        unfocusedBorderColor = MuniColors.dividerColor,
+                                        focusedContainerColor = MuniColors.ultraLightGray,
+                                        unfocusedContainerColor = MuniColors.ultraLightGray
                                 ),
                         singleLine = true
                 )
@@ -433,15 +424,15 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                         value = telefono,
                         onValueChange = { telefono = it },
                         label = { Text("Teléfono") },
-                        leadingIcon = { Icon(Icons.Default.Call, null, tint = Color(0xFF043CC7)) },
+                        leadingIcon = { Icon(Icons.Default.Call, null, tint = MuniColors.primaryBlue) },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MuniShapes.textField,
                         colors =
                                 OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF043CC7),
-                                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                                        focusedContainerColor = Color(0xFFFAFAFA),
-                                        unfocusedContainerColor = Color(0xFFFAFAFA)
+                                        focusedBorderColor = MuniColors.primaryBlue,
+                                        unfocusedBorderColor = MuniColors.dividerColor,
+                                        focusedContainerColor = MuniColors.ultraLightGray,
+                                        unfocusedContainerColor = MuniColors.ultraLightGray
                                 ),
                         singleLine = true
                 )
@@ -452,14 +443,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                 ) {
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0E0E0))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = MuniColors.dividerColor)
                         Text(
                                 "  Seguridad  ",
-                                fontSize = 12.sp,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Medium
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MuniColors.mediumGray
                         )
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE0E0E0))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = MuniColors.dividerColor)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -468,7 +458,7 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Contraseña") },
-                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color(0xFF043CC7)) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = MuniColors.primaryBlue) },
                         trailingIcon = {
                                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                         Icon(
@@ -487,24 +477,24 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 if (passwordVisible) VisualTransformation.None
                                 else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MuniShapes.textField,
                         colors =
                                 OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF043CC7),
-                                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                                        focusedContainerColor = Color(0xFFFAFAFA),
-                                        unfocusedContainerColor = Color(0xFFFAFAFA)
+                                        focusedBorderColor = MuniColors.primaryBlue,
+                                        unfocusedBorderColor = MuniColors.dividerColor,
+                                        focusedContainerColor = MuniColors.ultraLightGray,
+                                        unfocusedContainerColor = MuniColors.ultraLightGray
                                 ),
                         singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(MuniSpacing.sm))
 
                 OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
                         label = { Text("Confirmar contraseña") },
-                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = Color(0xFF043CC7)) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = MuniColors.primaryBlue) },
                         trailingIcon = {
                                 IconButton(
                                         onClick = {
@@ -527,13 +517,13 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 if (confirmPasswordVisible) VisualTransformation.None
                                 else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MuniShapes.textField,
                         colors =
                                 OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF043CC7),
-                                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                                        focusedContainerColor = Color(0xFFFAFAFA),
-                                        unfocusedContainerColor = Color(0xFFFAFAFA)
+                                        focusedBorderColor = MuniColors.primaryBlue,
+                                        unfocusedBorderColor = MuniColors.dividerColor,
+                                        focusedContainerColor = MuniColors.ultraLightGray,
+                                        unfocusedContainerColor = MuniColors.ultraLightGray
                                 ),
                         singleLine = true
                 )
@@ -547,15 +537,15 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 Icons.Default.CheckCircle,
                                 contentDescription = null,
                                 tint =
-                                        if (password.length >= 6) Color(0xFF4CAF50)
-                                        else Color.LightGray,
+                                        if (password.length >= 6) MuniColors.successGreen
+                                        else MuniColors.lightGray,
                                 modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                                 "Mínimo 6 caracteres",
-                                fontSize = 12.sp,
-                                color = if (password.length >= 6) Color(0xFF4CAF50) else Color.Gray
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (password.length >= 6) MuniColors.successGreen else MuniColors.mediumGray
                         )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -568,34 +558,34 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 contentDescription = null,
                                 tint =
                                         if (password.isNotEmpty() && password == confirmPassword)
-                                                Color(0xFF4CAF50)
-                                        else Color.LightGray,
+                                                MuniColors.successGreen
+                                        else MuniColors.lightGray,
                                 modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                                 "Las contraseñas coinciden",
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.bodySmall,
                                 color =
                                         if (password.isNotEmpty() && password == confirmPassword)
-                                                Color(0xFF4CAF50)
-                                        else Color.Gray
+                                                MuniColors.successGreen
+                                        else MuniColors.mediumGray
                         )
                 }
 
-                if (errorMessage != null) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors =
-                                        CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE)),
-                                shape = RoundedCornerShape(8.dp)
-                        ) {
-                                Text(
-                                        errorMessage!!,
-                                        color = Color(0xFFD32F2F),
-                                        fontSize = 14.sp,
-                                        modifier = Modifier.padding(12.dp),
+                        if (errorMessage != null) {
+                                Spacer(modifier = Modifier.height(MuniSpacing.sm))
+                                Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors =
+                                                CardDefaults.cardColors(containerColor = MuniColors.badgeRedBg),
+                                        shape = MuniShapes.buttonSmall
+                                ) {
+                                        Text(
+                                                errorMessage!!,
+                                                color = MuniColors.errorRed,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                modifier = Modifier.padding(MuniSpacing.sm),
                                         textAlign = TextAlign.Center
                                 )
                         }
@@ -624,37 +614,21 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                                 scope.launch {
                                                         isLoading = true
                                                         errorMessage = null
-                                                        try {
-                                                                apiService.register(
-                                                                        org.example.project.data
-                                                                                .remote.dto
-                                                                                .RegisterRequest(
-                                                                                        correo =
-                                                                                                email,
-                                                                                        contrasena =
-                                                                                                password,
-                                                                                        nombre =
-                                                                                                nombre,
-                                                                                        apellido =
-                                                                                                apellido,
-                                                                                        telefono =
-                                                                                                telefono
-                                                                                )
-                                                                )
+                                                        when (registerUseCase(email, password, nombre, apellido, telefono)) {
+                                                            is org.example.project.core.error.Try.Success -> {
                                                                 onRegisterSuccess()
-                                                        } catch (e: Exception) {
-                                                                errorMessage =
-                                                                        e.message
-                                                                                ?: "Error desconocido al registrar"
-                                                        } finally {
-                                                                isLoading = false
+                                                            }
+                                                            is org.example.project.core.error.Try.Failure -> {
+                                                                errorMessage = "Error al registrar"
+                                                            }
                                                         }
+                                                        isLoading = false
                                                 }
                                         }
                                 }
                         },
                         modifier = Modifier.fillMaxWidth().height(54.dp),
-                        shape = RoundedCornerShape(14.dp),
+                        shape = MuniShapes.button,
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues(0.dp),
                         enabled = !isLoading
@@ -663,14 +637,8 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
                                 modifier =
                                         Modifier.fillMaxSize()
                                                 .background(
-                                                        Brush.horizontalGradient(
-                                                                colors =
-                                                                        listOf(
-                                                                                Color(0xFF043CC7),
-                                                                                Color(0xFF3DBAD7)
-                                                                        )
-                                                        ),
-                                                        shape = RoundedCornerShape(14.dp)
+                                                        MuniGradients.registerButton,
+                                                        shape = MuniShapes.button
                                                 ),
                                 contentAlignment = Alignment.Center
                         ) {
@@ -694,8 +662,8 @@ fun RegisterBottomSheetContent(onDismiss: () -> Unit, onRegisterSuccess: () -> U
 
                 Text(
                         "Al registrarte, aceptas nuestros términos y condiciones",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MuniColors.mediumGray,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                 )

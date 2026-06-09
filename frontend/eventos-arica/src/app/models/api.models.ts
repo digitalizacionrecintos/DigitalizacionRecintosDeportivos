@@ -217,7 +217,7 @@ export interface InscripcionDetalleDTO {
     fechaInscripcion: string;
 }
 
-// Course Statistics Interfaces
+
 export interface EstadisticasCursosDTO {
     resumen: ResumenCursos;
     cursosPopulares: CursoPopular[];

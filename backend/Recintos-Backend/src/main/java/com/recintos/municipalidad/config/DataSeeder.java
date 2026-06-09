@@ -1,9 +1,14 @@
 package com.recintos.municipalidad.config;
 
+import com.recintos.municipalidad.model.Curso;
+import com.recintos.municipalidad.model.CursoHorario;
 import com.recintos.municipalidad.model.Evento;
 import com.recintos.municipalidad.model.Recinto;
 import com.recintos.municipalidad.model.Usuario;
+import com.recintos.municipalidad.model.enums.EstadoCurso;
+import com.recintos.municipalidad.repository.RepositorioCurso;
 import com.recintos.municipalidad.repository.RepositorioEvento;
+import com.recintos.municipalidad.service.ServicioCurso;
 import com.recintos.municipalidad.repository.RepositorioRecinto;
 import com.recintos.municipalidad.repository.RepositorioUsuario;
 import org.springframework.boot.CommandLineRunner;
@@ -11,8 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +33,9 @@ public class DataSeeder {
             RepositorioEvento repositorioEvento,
             com.recintos.municipalidad.repository.RepositorioCategoria repositorioCategoria,
             com.recintos.municipalidad.repository.RepositorioInscripcion repositorioInscripcion,
-            PasswordEncoder passwordEncoder) {
+            RepositorioCurso repositorioCurso,
+            PasswordEncoder passwordEncoder,
+            ServicioCurso servicioCurso) {
         return args -> {
 
             if (repositorioUsuario.count() == 0) {
@@ -39,6 +48,10 @@ public class DataSeeder {
 
             if (repositorioCategoria.count() == 0) {
                 crearCategorias(repositorioCategoria);
+            }
+
+            if (repositorioCurso.count() == 0) {
+                crearCursos(servicioCurso, repositorioUsuario, repositorioRecinto, repositorioCategoria);
             }
 
             if (repositorioEvento.count() == 0) {
@@ -191,6 +204,140 @@ public class DataSeeder {
             repo.save(cat);
         }
         System.out.println("6 Categorías deportivas creadas.");
+    }
+
+    private void crearCursos(ServicioCurso servicioCurso, RepositorioUsuario repoUsuario,
+            RepositorioRecinto repoRecinto, com.recintos.municipalidad.repository.RepositorioCategoria repoCategoria) {
+        Usuario encargado = repoUsuario.findByCorreo("encargado@municipalidad.com").orElse(null);
+        if (encargado == null)
+            return;
+
+        List<Recinto> recintos = repoRecinto.findAll();
+        List<com.recintos.municipalidad.model.Categoria> categorias = repoCategoria.findAll();
+        if (recintos.isEmpty() || categorias.isEmpty())
+            return;
+
+        Recinto piscina = recintos.stream().filter(r -> r.getNombre().contains("Piscina")).findFirst().orElse(recintos.get(0));
+        Recinto gimnasio = recintos.stream().filter(r -> r.getNombre().contains("Gimnasio")).findFirst().orElse(recintos.get(0));
+        Recinto estadio = recintos.stream().filter(r -> r.getNombre().contains("Carlos Dittborn")).findFirst().orElse(recintos.get(0));
+        Recinto fortin = recintos.stream().filter(r -> r.getNombre().contains("Fortín")).findFirst().orElse(recintos.get(0));
+        Recinto playa = recintos.stream().filter(r -> r.getNombre().contains("Playa Arena")).findFirst().orElse(recintos.get(0));
+        Recinto parque = recintos.stream().filter(r -> r.getNombre().contains("Parque Centenario")).findFirst().orElse(recintos.get(0));
+
+        com.recintos.municipalidad.model.Categoria natacion = categorias.stream().filter(c -> c.getNombre().equals("Natación")).findFirst().orElse(categorias.get(0));
+        com.recintos.municipalidad.model.Categoria yoga = categorias.stream().filter(c -> c.getNombre().equals("Yoga")).findFirst().orElse(categorias.get(0));
+        com.recintos.municipalidad.model.Categoria futbol = categorias.stream().filter(c -> c.getNombre().equals("Fútbol")).findFirst().orElse(categorias.get(0));
+        com.recintos.municipalidad.model.Categoria basquet = categorias.stream().filter(c -> c.getNombre().equals("Básquetbol")).findFirst().orElse(categorias.get(0));
+        com.recintos.municipalidad.model.Categoria volei = categorias.stream().filter(c -> c.getNombre().equals("Voleibol")).findFirst().orElse(categorias.get(0));
+        com.recintos.municipalidad.model.Categoria atletismo = categorias.stream().filter(c -> c.getNombre().equals("Atletismo")).findFirst().orElse(categorias.get(0));
+
+        LocalDate hoy = LocalDate.now();
+
+        crearUnCurso(servicioCurso, "Natación para Principiantes",
+                "Curso de natación nivel básico para niños y adultos. Incluye técnicas de respiración y flotación.",
+                piscina, natacion, encargado, hoy.minusMonths(2), hoy.plusMonths(2),
+                LocalTime.of(9, 0), LocalTime.of(10, 0), 20, 2,
+                List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Natación Avanzada",
+                "Curso de perfeccionamiento en estilos de natación: crol, espalda, pecho y mariposa.",
+                piscina, natacion, encargado, hoy.minusMonths(1), hoy.plusMonths(3),
+                LocalTime.of(10, 30), LocalTime.of(12, 0), 15, 1,
+                List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Yoga y Meditación",
+                "Clases de yoga para reducir el estrés, mejorar la flexibilidad y encontrar equilibrio interior.",
+                gimnasio, yoga, encargado, hoy.minusMonths(1), hoy.plusMonths(5),
+                LocalTime.of(8, 0), LocalTime.of(9, 0), 25, 1,
+                List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Yoga al Aire Libre",
+                "Sesiones de yoga en la naturaleza para conectar con el entorno mientras practicas ejercicio.",
+                parque, yoga, encargado, hoy.plusMonths(1), hoy.plusMonths(4),
+                LocalTime.of(7, 0), LocalTime.of(8, 30), 30, 1,
+                List.of(DayOfWeek.SATURDAY),
+                EstadoCurso.PUBLICADO);
+
+        crearUnCurso(servicioCurso, "Fútbol Infantil",
+                "Escuela de fútbol para niños de 6 a 12 años. Aprendizaje lúdico y desarrollo de habilidades motrices.",
+                estadio, futbol, encargado, hoy.minusMonths(3), hoy.plusMonths(6),
+                LocalTime.of(15, 0), LocalTime.of(16, 30), 30, 1,
+                List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Fútbol Juvenil",
+                "Entrenamiento táctico y físico para jóvenes de 13 a 17 años con experiencia en fútbol.",
+                estadio, futbol, encargado, hoy.plusMonths(2), hoy.plusMonths(5),
+                LocalTime.of(17, 0), LocalTime.of(18, 30), 22, 1,
+                List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
+                EstadoCurso.PUBLICADO);
+
+        crearUnCurso(servicioCurso, "Básquetbol Formativo",
+                "Curso de iniciación al básquetbol para jóvenes. Fundamentos técnicos y trabajo en equipo.",
+                fortin, basquet, encargado, hoy.minusMonths(2), hoy.plusMonths(4),
+                LocalTime.of(16, 0), LocalTime.of(17, 30), 20, 1,
+                List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Voleibol de Playa",
+                "Divertido curso de voleibol en la playa. Ideal para disfrutar el deporte al aire libre.",
+                playa, volei, encargado, hoy.plusMonths(1), hoy.plusMonths(3),
+                LocalTime.of(10, 0), LocalTime.of(11, 30), 16, 2,
+                List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY),
+                EstadoCurso.PUBLICADO);
+
+        crearUnCurso(servicioCurso, "Atletismo para Todas las Edades",
+                "Programa de atletismo que incluye carreras, saltos y lanzamientos para toda la familia.",
+                parque, atletismo, encargado, hoy.minusMonths(1), hoy.plusMonths(2),
+                LocalTime.of(18, 0), LocalTime.of(19, 30), 40, 2,
+                List.of(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY),
+                EstadoCurso.EN_PROGRESO);
+
+        crearUnCurso(servicioCurso, "Acondicionamiento Físico General",
+                "Rutinas de ejercicio funcional para mejorar la condición física general de los participantes.",
+                gimnasio, atletismo, encargado, hoy.plusMonths(1), hoy.plusMonths(4),
+                LocalTime.of(7, 0), LocalTime.of(8, 0), 20, 1,
+                List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                EstadoCurso.PUBLICADO);
+
+        System.out.println("10 Cursos creados.");
+    }
+
+    private Curso crearUnCurso(ServicioCurso servicioCurso, String nombre, String descripcion, Recinto recinto,
+            com.recintos.municipalidad.model.Categoria categoria, Usuario encargado,
+            LocalDate fechaInicio, LocalDate fechaFin, LocalTime horaInicio, LocalTime horaFin,
+            Integer cupo, Integer maximoPorInscripcion,
+            List<DayOfWeek> dias, EstadoCurso estado) {
+        Curso c = new Curso();
+        c.setNombre(nombre);
+        c.setDescripcion(descripcion);
+        c.setRecinto(recinto);
+        c.setCategoria(categoria);
+        c.setEncargado(encargado);
+        c.setFechaInicio(fechaInicio);
+        c.setFechaFin(fechaFin);
+        c.setHoraInicio(horaInicio);
+        c.setHoraFin(horaFin);
+        c.setCupo(cupo);
+        c.setMaximoPorInscripcion(maximoPorInscripcion);
+        c.setEstado(estado);
+        c.setDias(String.join(", ", dias.stream().map(DayOfWeek::name).toList()));
+
+        List<CursoHorario> horarios = new ArrayList<>();
+        for (DayOfWeek dia : dias) {
+            CursoHorario h = new CursoHorario();
+            h.setDia(dia);
+            h.setHoraInicio(horaInicio);
+            h.setHoraFin(horaFin);
+            h.setCurso(c);
+            horarios.add(h);
+        }
+        c.setHorarios(horarios);
+
+        return servicioCurso.guardarCurso(c);
     }
 
     private void crearEventos(RepositorioEvento repoEvento, RepositorioUsuario repoUsuario,

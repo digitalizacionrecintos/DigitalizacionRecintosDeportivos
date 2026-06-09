@@ -41,7 +41,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
   eventosPorPagina = 5;
   ordenFecha: 'asc' | 'desc' = 'asc';
 
-  // Additional filters
+  
   categoriaFiltro: number | null = null;
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
@@ -49,7 +49,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
   inscritosMax: number | null = null;
   mostrarFiltros: boolean = false;
 
-  // Data for dropdowns
+  
   categorias: any[] = [];
   recintos: any[] = [];
 
@@ -165,7 +165,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
   private listenToWebSocketUpdates(): void {
     this.wsSubscription = this.websocketService.getCuposUpdates().subscribe({
       next: (update) => {
-        console.log(' Actualización de cupos recibida:', update);
+        console.log(' ActualizaciÃ³n de cupos recibida:', update);
 
         const evento = this.eventos.find(e => e.id === update.eventoId);
         if (evento) {
@@ -261,7 +261,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error(' Error cargando eventos:', error);
-        this.error = 'Error al cargar eventos. Verifica tu conexión con el backend.';
+        this.error = 'Error al cargar eventos. Verifica tu conexiÃ³n con el backend.';
         this.cargando = false;
         this.cdr.detectChanges();
       }
@@ -284,10 +284,10 @@ export class EventosListComponent implements OnInit, OnDestroy {
     const horaObj = new Date(hora);
     const dia = fechaObj.getDate().toString().padStart(2, '0');
     const mes = (fechaObj.getMonth() + 1).toString().padStart(2, '0');
-    const año = fechaObj.getFullYear().toString().slice(-2);
+    const aÃ±o = fechaObj.getFullYear().toString().slice(-2);
     const horas = horaObj.getHours().toString().padStart(2, '0');
     const minutos = horaObj.getMinutes().toString().padStart(2, '0');
-    return `${dia} / ${mes} / ${año}`;
+    return `${dia} / ${mes} / ${aÃ±o}`;
   }
 
 
@@ -319,12 +319,12 @@ export class EventosListComponent implements OnInit, OnDestroy {
   get eventosFiltrados(): Evento[] {
     let resultado = this.eventos;
 
-    // 1. Filter by state
+    
     if (this.filtroActivo !== 'TODOS') {
       resultado = resultado.filter(e => e.estado === this.filtroActivo);
     }
 
-    // 2. Filter by search text
+    
     if (this.searchTerm.trim()) {
       const busq = this.searchTerm.toLowerCase();
       resultado = resultado.filter(e =>
@@ -334,14 +334,14 @@ export class EventosListComponent implements OnInit, OnDestroy {
       );
     }
 
-    // 3. Filter by category
+    
     if (this.categoriaFiltro) {
       resultado = resultado.filter(e =>
         e.categoria?.id === this.categoriaFiltro
       );
     }
 
-    // 4. Filter by date range (using fechaInicio)
+    
     if (this.fechaInicioFiltro) {
       resultado = resultado.filter(e =>
         e.fechaInicio && e.fechaInicio >= this.fechaInicioFiltro
@@ -353,7 +353,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
       );
     }
 
-    // 5. Filter by inscriptions count
+    
     if (this.inscritosMin !== null) {
       resultado = resultado.filter(e =>
         (e.inscritosActuales || 0) >= this.inscritosMin!
@@ -365,7 +365,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Apply sorting
+    
     resultado = [...resultado].sort((a, b) => {
       const fechaA = new Date(a.fechaInicio || '').getTime();
       const fechaB = new Date(b.fechaInicio || '').getTime();
@@ -539,7 +539,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
 
 
           if (err.status === 403) {
-            alert(' No se puede eliminar este evento.\n\nPosibles razones:\n• El evento tiene inscripciones activas\n• No tienes permisos suficientes\n\nPrimero cancela las inscripciones o contacta al administrador.');
+            alert(' No se puede eliminar este evento.\n\nPosibles razones:\nâ€¢ El evento tiene inscripciones activas\nâ€¢ No tienes permisos suficientes\n\nPrimero cancela las inscripciones o contacta al administrador.');
           } else if (err.status === 404) {
             alert(' El evento no existe o ya fue eliminado.');
 
@@ -643,7 +643,7 @@ export class EventosListComponent implements OnInit, OnDestroy {
         this.categorias = categorias;
       },
       error: (error: any) => {
-        console.error('Error cargando categorías:', error);
+        console.error('Error cargando categorÃ­as:', error);
       }
     });
   }

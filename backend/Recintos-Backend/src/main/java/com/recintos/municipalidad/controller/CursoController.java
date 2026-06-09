@@ -62,7 +62,7 @@ public class CursoController {
         curso.setCupo(cursoDTO.getCupo());
         curso.setMaximoPorInscripcion(cursoDTO.getMaximoPorInscripcion());
         
-        // Load related entities from database
+        
         if (cursoDTO.getIdRecinto() != null) {
             curso.setRecinto(repositorioRecinto.findById(cursoDTO.getIdRecinto())
                 .orElseThrow(() -> new RuntimeException("Recinto no encontrado")));
@@ -73,10 +73,10 @@ public class CursoController {
         }
         if (cursoDTO.getIdCategoria() != null) {
             curso.setCategoria(repositorioCategoria.findById(cursoDTO.getIdCategoria())
-                .orElseThrow(() -> new RuntimeException("Categoría no encontrada")));
+                .orElseThrow(() -> new RuntimeException("CategorÃ­a no encontrada")));
         }
         
-        // Map horarios
+        
         if (cursoDTO.getHorarios() != null) {
             curso.setHorarios(new java.util.ArrayList<>());
             for (var horarioDTO : cursoDTO.getHorarios()) {

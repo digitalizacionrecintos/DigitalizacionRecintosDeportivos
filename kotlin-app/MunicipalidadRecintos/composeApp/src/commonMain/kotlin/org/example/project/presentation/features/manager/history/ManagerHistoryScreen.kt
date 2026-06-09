@@ -25,12 +25,20 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import municipalidadrecintos.composeapp.generated.resources.Res
 import municipalidadrecintos.composeapp.generated.resources.logo_muni_arica
+import org.example.project.domain.usecase.event.GetManagerEventsUseCase
+import org.example.project.presentation.components.MuniTopBarLogo
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 class ManagerHistoryScreen : Screen {
         @Composable
         override fun Content() {
-                val viewModel = remember { ManagerHistoryViewModel() }
+                val getManagerEventsUseCase: GetManagerEventsUseCase = koinInject<GetManagerEventsUseCase>()
+                val viewModel = remember { ManagerHistoryViewModel(getManagerEventsUseCase) }
                 val state by viewModel.state.collectAsState()
                 val years by viewModel.years.collectAsState()
                 val categories by viewModel.categories.collectAsState()
@@ -54,51 +62,31 @@ class ManagerHistoryScreen : Screen {
                                 "Diciembre" to 12
                         )
 
-                Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF5F5F5))) {
+                Column(modifier = Modifier.fillMaxSize().background(MuniColors.offWhite)) {
 
                         Row(
                                 modifier =
                                         Modifier.fillMaxWidth()
-                                                .background(
-                                                        Brush.horizontalGradient(
-                                                                colors =
-                                                                        listOf(
-                                                                                Color(0xFF001F5C),
-                                                                                Color(0xFF023075),
-                                                                                Color(0xFF0D47A1)
-                                                                        )
-                                                        )
-                                                )
+                                                .background(MuniGradients.header)
                                                 .statusBarsPadding()
-                                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                                                .padding(horizontal = MuniSpacing.lg, vertical = MuniSpacing.sm),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
-                                Image(
-                                        painter = painterResource(Res.drawable.logo_muni_arica),
-                                        contentDescription = "Logo",
-                                        modifier =
-                                                Modifier.size(48.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(Color.White.copy(alpha = 0.1f))
-                                                        .padding(4.dp),
-                                        contentScale = ContentScale.Fit
-                                )
+                                MuniTopBarLogo()
 
-                                Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
                                 Column {
                                         Text(
                                                 text = "Historial",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Bold,
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontSize = 22.sp
+                                                style = MaterialTheme.typography.titleLarge
                                         )
                                         Text(
                                                 text = "Eventos finalizados",
                                                 color = Color.White.copy(alpha = 0.9f),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontSize = 12.sp
+                                                style = MaterialTheme.typography.bodySmall
                                         )
                                 }
                         }
@@ -361,19 +349,3 @@ fun ManagerHistoryCard(event: ManagerHistoryEvent, onClick: () -> Unit) {
         }
 }
 
-data class ManagerHistoryEvent(
-        val id: String,
-        val title: String,
-        val date: String,
-        val attendeesCount: Int,
-        val categoryName: String,
-        val originalDate: String,
-        val attendees: List<AttendeeInfo> = emptyList()
-)
-
-data class AttendeeInfo(
-        val id: Int,
-        val name: String,
-        val email: String,
-        val attendanceStatus: String
-)

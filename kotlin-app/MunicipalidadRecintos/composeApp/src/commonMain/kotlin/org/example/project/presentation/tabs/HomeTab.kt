@@ -13,11 +13,12 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import org.example.project.domain.usecase.event.GetEventsUseCase
 import org.example.project.presentation.features.events.detail.EventDetailScreen
 import org.example.project.presentation.features.events.list.EventListEvent
 import org.example.project.presentation.features.events.list.EventListScreenContent
 import org.example.project.presentation.features.events.list.EventListViewModel
-
+import org.koin.compose.koinInject
 object HomeTab : Tab {
 
     override val key: ScreenKey = uniqueScreenKey
@@ -36,7 +37,8 @@ object HomeTab : Tab {
 
         val parentNavigator = LocalNavigator.currentOrThrow.parent ?: LocalNavigator.currentOrThrow
 
-        val viewModel = remember { EventListViewModel() }
+        val getEventsUseCase: GetEventsUseCase = koinInject()
+        val viewModel = remember { EventListViewModel(getEventsUseCase) }
         val state by viewModel.state.collectAsState()
 
         EventListScreenContent(

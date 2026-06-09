@@ -22,7 +22,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -39,16 +38,26 @@ import municipalidadrecintos.composeapp.generated.resources.logo_sol_municipalid
 import org.example.project.domain.model.Event
 import org.example.project.presentation.components.AnimatedEventCard
 import org.example.project.presentation.components.EventTag
+import org.example.project.domain.usecase.event.GetEventsUseCase
+import org.example.project.presentation.components.MuniTopBarLogo
 import org.example.project.presentation.components.ShimmerEventCard
 import org.example.project.presentation.features.events.detail.EventDetailScreen
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 class EventListScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                val viewModel = remember { EventListViewModel() }
+
+                val getEventsUseCase: GetEventsUseCase = koinInject()
+                val viewModel = remember { EventListViewModel(getEventsUseCase) }
                 val state by viewModel.state.collectAsState()
+
                 EventListScreenContent(
                         state = state,
                         onEvent = { event ->
@@ -73,67 +82,35 @@ fun EventListScreenContent(
         onEvent: (EventListEvent) -> Unit,
         onRefresh: () -> Unit
 ) {
-        val gradientBrush =
-                Brush.verticalGradient(
-                        0.0f to Color(0xFF043CC7),
-                        0.25f to Color(0xFF3A83DF),
-                        0.55f to Color(0xFF4BAAEA),
-                        0.92f to Color(0xFF3DBAD7)
-                )
         Column(modifier = Modifier.fillMaxSize()) {
+
                 Row(
                         modifier =
                                 Modifier.fillMaxWidth()
-                                        .background(
-                                                Brush.horizontalGradient(
-                                                        colors =
-                                                                listOf(
-                                                                        Color(
-                                                                                0xFF001F5C
-                                                                        ),
-                                                                        Color(
-                                                                                0xFF023075
-                                                                        ),
-                                                                        Color(
-                                                                                0xFF0D47A1
-                                                                        )
-                                                                )
-                                                )
-                                        )
+                                        .background(MuniGradients.header)
                                         .statusBarsPadding()
-                                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                                        .padding(horizontal = MuniSpacing.lg, vertical = MuniSpacing.sm),
                         verticalAlignment = Alignment.CenterVertically
                 ) {
-                        Image(
-                                painter = painterResource(Res.drawable.logo_muni_arica),
-                                contentDescription = "Logo",
-                                modifier =
-                                        Modifier.size(48.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(Color.White.copy(alpha = 0.1f))
-                                                .padding(4.dp),
-                                contentScale = ContentScale.Fit
-                        )
+                        MuniTopBarLogo()
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
                         Column {
                                 Text(
                                         text = "Eventos disponibles",
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontSize = 22.sp
+                                        style = MaterialTheme.typography.titleLarge
                                 )
                                 Text(
                                         text = "Reserva tu espacio",
                                         color = Color.White.copy(alpha = 0.9f),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 12.sp
+                                        style = MaterialTheme.typography.bodySmall
                                 )
                         }
                 }
-                Column(Modifier.background(brush = gradientBrush).fillMaxSize().weight(1f)) {
+                Column(Modifier.background(MuniGradients.contentBackground).fillMaxSize().weight(1f)) {
 
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
 
@@ -143,13 +120,13 @@ fun EventListScreenContent(
                                                 onEvent(EventListEvent.OnSearchQueryChange(it))
                                         },
                                         placeholder = {
-                                                Text("Buscar eventos...", color = Color(0xFF6B7280))
+                                                Text("Buscar eventos...", color = MuniColors.mediumGray)
                                         },
                                         leadingIcon = {
                                                 Icon(
                                                         Icons.Default.Search,
                                                         contentDescription = null,
-                                                        tint = Color(0xFF6B7280),
+                                                        tint = MuniColors.mediumGray,
                                                         modifier = Modifier.size(20.dp)
                                                 )
                                         },

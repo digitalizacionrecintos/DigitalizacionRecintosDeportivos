@@ -33,4 +33,6 @@ public interface ServicioEvento {
     public List<Evento> listarEventosDisponibles();
 
     public List<Evento> listarEventosSinCurso();
+
+    public List<Evento> listarEventosParaCliente();
 }

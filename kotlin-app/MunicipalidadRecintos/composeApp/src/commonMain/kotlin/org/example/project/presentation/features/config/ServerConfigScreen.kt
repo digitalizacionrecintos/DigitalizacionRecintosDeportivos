@@ -24,8 +24,8 @@ class ServerConfigScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                var ipAddress by remember { mutableStateOf("192.168.1.144") }
-                var port by remember { mutableStateOf("8080") }
+                var ipAddress by remember { mutableStateOf(ServerConfigManager.ip.value.ifBlank { "192.168.1.144" }) }
+                var port by remember { mutableStateOf(ServerConfigManager.port.value.ifBlank { "8080" }) }
                 var showError by remember { mutableStateOf(false) }
 
                 Box(

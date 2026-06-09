@@ -44,7 +44,7 @@ export class EditarEventoComponent implements OnInit {
     capacidad: '',
     imagen: '',
     cursoId: null as number | null,
-    cursoNombre: '', // Add this
+    cursoNombre: '', 
     maximoPorInscripcion: null as number | null
   };
 
@@ -100,7 +100,7 @@ export class EditarEventoComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('La imagen no puede pesar más de 5MB');
+        alert('La imagen no puede pesar mÃ¡s de 5MB');
         event.target.value = '';
         return;
       }
@@ -208,10 +208,10 @@ export class EditarEventoComponent implements OnInit {
     this.categoriasService.getCategorias().subscribe({
       next: (categorias) => {
         this.categorias = categorias;
-        console.log('Categorías disponibles cargadas:', categorias);
+        console.log('CategorÃ­as disponibles cargadas:', categorias);
       },
       error: (error) => {
-        console.error('Error cargando categorías:', error);
+        console.error('Error cargando categorÃ­as:', error);
       }
     });
   }
@@ -227,7 +227,7 @@ export class EditarEventoComponent implements OnInit {
     }
 
     if (this.evento.descripcion && this.evento.descripcion.length > 255) {
-      alert('La descripción no puede exceder los 255 caracteres');
+      alert('La descripciÃ³n no puede exceder los 255 caracteres');
       return;
     }
 
@@ -273,7 +273,7 @@ export class EditarEventoComponent implements OnInit {
       imagen: this.evento.imagen || '',
       imagenUrl: this.evento.imagen || '',
       cursoId: this.evento.cursoId || undefined,
-      maximoPorInscripcion: this.evento.maximoPorInscripcion || undefined // Add this
+      maximoPorInscripcion: this.evento.maximoPorInscripcion || undefined 
     };
 
     console.log(' Enviando al backend:', editarEventoDTO);

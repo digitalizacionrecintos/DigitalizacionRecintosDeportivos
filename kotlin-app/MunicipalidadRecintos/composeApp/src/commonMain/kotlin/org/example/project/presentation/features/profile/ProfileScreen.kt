@@ -33,14 +33,22 @@ import municipalidadrecintos.composeapp.generated.resources.Res
 import municipalidadrecintos.composeapp.generated.resources.logo_muni_arica
 import org.example.project.domain.manager.SessionManager
 import org.example.project.domain.model.UserRole
+import org.example.project.domain.usecase.user.UpdateProfileUseCase
+import org.example.project.presentation.components.MuniTopBarLogo
 import org.example.project.presentation.features.auth.login.LoginScreen
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 class ProfileScreen : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                val viewModel = remember { ProfileViewModel() }
+                val updateProfileUseCase: UpdateProfileUseCase = koinInject<UpdateProfileUseCase>()
+                val viewModel = remember { ProfileViewModel(updateProfileUseCase) }
                 val state by viewModel.state.collectAsState()
 
                 LaunchedEffect(Unit) { viewModel.getProfileData() }
@@ -83,60 +91,32 @@ fun ProfileScreenContent(
                 isVisible = true
         }
 
-        Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
+        Box(modifier = Modifier.fillMaxSize().background(MuniColors.surfaceOverlay)) {
                 Column(modifier = Modifier.fillMaxSize()) {
 
                         Row(
                                 modifier =
                                         Modifier.fillMaxWidth()
-                                                .background(
-                                                        Brush.horizontalGradient(
-                                                                colors =
-                                                                        listOf(
-                                                                                Color(
-                                                                                        0xFF001F5C
-                                                                                ),
-
-                                                                                Color(
-                                                                                        0xFF023075
-                                                                                ),
-                                                                                Color(
-                                                                                        0xFF0D47A1
-                                                                                )
-
-                                                                                )
-                                                        )
-                                                )
+                                                .background(MuniGradients.header)
                                                 .statusBarsPadding()
-                                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                                                .padding(horizontal = MuniSpacing.lg, vertical = MuniSpacing.sm),
                                 verticalAlignment = Alignment.CenterVertically
                         ) {
-                                Image(
-                                        painter = painterResource(Res.drawable.logo_muni_arica),
-                                        contentDescription = "Logo",
-                                        modifier =
-                                                Modifier.size(48.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(Color.White.copy(alpha = 0.1f))
-                                                        .padding(4.dp),
-                                        contentScale = ContentScale.Fit
-                                )
+                                MuniTopBarLogo()
 
-                                Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
                                 Column {
                                         Text(
                                                 text = "Mi Perfil",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Bold,
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontSize = 22.sp
+                                                style = MaterialTheme.typography.titleLarge
                                         )
                                         Text(
                                                 text = "Gestiona tu cuenta",
                                                 color = Color.White.copy(alpha = 0.9f),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontSize = 12.sp
+                                                style = MaterialTheme.typography.bodySmall
                                         )
                                 }
                         }
@@ -151,28 +131,8 @@ fun ProfileScreenContent(
                                         modifier =
                                                 Modifier.fillMaxWidth()
                                                         .height(300.dp)
-                                                        .clip(
-                                                                RoundedCornerShape(
-                                                                        bottomStart = 32.dp,
-                                                                        bottomEnd = 32.dp
-                                                                )
-                                                        )
-                                                        .background(
-                                                                Brush.verticalGradient(
-                                                                        colors =
-                                                                                listOf(
-                                                                                        Color(
-                                                                                                0xFF043CC7
-                                                                                        ),
-                                                                                        Color(
-                                                                                                0xFF0652DD
-                                                                                        ),
-                                                                                        Color(
-                                                                                                0xFF00D2FF
-                                                                                        )
-                                                                                )
-                                                                )
-                                                        ),
+                                                        .clip(MuniShapes.topBar)
+                                                        .background(MuniGradients.profileHeader),
                                         contentAlignment = Alignment.Center
                                 ) {
                                         Column(

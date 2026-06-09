@@ -11,8 +11,10 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import org.example.project.domain.repository.UserRepository
 import org.example.project.presentation.features.history.HistoryScreenContent
 import org.example.project.presentation.features.history.HistoryViewModel
+import org.koin.compose.koinInject
 
 object HistoryTab : Tab {
     override val key: ScreenKey = uniqueScreenKey
@@ -26,16 +28,18 @@ object HistoryTab : Tab {
 
     @Composable
     override fun Content() {
-
-        val viewModel = remember { HistoryViewModel() }
+        val userRepository: UserRepository = koinInject()
+        val viewModel = remember { HistoryViewModel(userRepository) }
         val state by viewModel.state.collectAsState()
 
         HistoryScreenContent(
-                state = state,
-                onRefresh = { viewModel.refresh() },
-                onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
-                onYearSelected = { viewModel.onYearSelected(it) },
-                onMonthSelected = { viewModel.onMonthSelected(it) }
+            state = state,
+            onRefresh = { viewModel.refresh() },
+            onSearchQueryChange = { viewModel.onSearchQueryChange(it) },
+            onYearSelected = { viewModel.onYearSelected(it) },
+            onMonthSelected = { viewModel.onMonthSelected(it) },
+            onTabSelected = { viewModel.onTabSelected(it) },
+            onEventSubTabSelected = { viewModel.onEventSubTabSelected(it) }
         )
     }
 }

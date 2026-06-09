@@ -31,6 +31,12 @@ public class EventoController {
         return new ResponseEntity<>(eventos, HttpStatus.OK);
     }
 
+    @GetMapping("/client")
+    public ResponseEntity<List<Evento>> obtenerEventosParaCliente() {
+        List<Evento> eventos = servicioEvento.listarEventosParaCliente();
+        return new ResponseEntity<>(eventos, HttpStatus.OK);
+    }
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<Object> editarEvento(
             @PathVariable Long id,

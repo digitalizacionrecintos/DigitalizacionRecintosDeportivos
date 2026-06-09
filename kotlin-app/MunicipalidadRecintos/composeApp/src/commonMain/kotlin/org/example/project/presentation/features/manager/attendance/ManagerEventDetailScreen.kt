@@ -31,14 +31,33 @@ import coil3.compose.AsyncImage
 import municipalidadrecintos.composeapp.generated.resources.Res
 import municipalidadrecintos.composeapp.generated.resources.logo_muni_arica
 import org.example.project.domain.model.AttendeeInfo
+import org.example.project.domain.usecase.event.ChangeEventStatusUseCase
+import org.example.project.domain.usecase.event.GetManagerEventsUseCase
+import org.example.project.domain.usecase.event.UpdateAttendanceUseCase
 import org.example.project.domain.util.DateTimeUtils
+import org.example.project.presentation.components.MuniTopBarLogo
+import org.example.project.presentation.theme.MuniColors
+import org.example.project.presentation.theme.MuniGradients
+import org.example.project.presentation.theme.MuniShapes
+import org.example.project.presentation.theme.MuniSpacing
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.koinInject
 
 data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Screen {
         @Composable
         override fun Content() {
                 val navigator = LocalNavigator.currentOrThrow
-                val viewModel = remember { ManagerEventDetailViewModel(managerId = managerId) }
+                val getManagerEventsUseCase: GetManagerEventsUseCase = koinInject()
+                val changeEventStatusUseCase: ChangeEventStatusUseCase = koinInject()
+                val updateAttendanceUseCase: UpdateAttendanceUseCase = koinInject()
+                val viewModel = remember {
+                    ManagerEventDetailViewModel(
+                        managerId = managerId,
+                        getManagerEventsUseCase = getManagerEventsUseCase,
+                        changeEventStatusUseCase = changeEventStatusUseCase,
+                        updateAttendanceUseCase = updateAttendanceUseCase
+                    )
+                }
                 val state by viewModel.state.collectAsState()
 
                 LaunchedEffect(eventId) { viewModel.loadEventDetail(eventId) }
@@ -48,7 +67,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                 Box(
                                         modifier = Modifier.fillMaxSize(),
                                         contentAlignment = Alignment.Center
-                                ) { CircularProgressIndicator(color = Color(0xFF0D47A1)) }
+                                ) { CircularProgressIndicator(color = MuniColors.primaryBlue) }
                         }
                         is ManagerEventDetailState.Error -> {
                                 Box(
@@ -57,22 +76,22 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                 ) {
                                         Column(
                                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                                modifier = Modifier.padding(32.dp)
+                                                modifier = Modifier.padding(MuniSpacing.xxl)
                                         ) {
                                                 Text(
                                                         text = "Error",
                                                         style = MaterialTheme.typography.titleLarge,
                                                         fontWeight = FontWeight.Bold,
-                                                        color = Color(0xFFD32F2F)
+                                                        color = MuniColors.errorRed
                                                 )
-                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Spacer(modifier = Modifier.height(MuniSpacing.sm))
                                                 Text(
                                                         text = currentState.message,
                                                         style = MaterialTheme.typography.bodyMedium,
-                                                        color = Color.Gray,
+                                                        color = MuniColors.mediumGray,
                                                         textAlign = TextAlign.Center
                                                 )
-                                                Spacer(modifier = Modifier.height(16.dp))
+                                                Spacer(modifier = Modifier.height(MuniSpacing.lg))
                                                 Button(
                                                         onClick = {
                                                                 viewModel.loadEventDetail(eventId)
@@ -80,7 +99,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                         colors =
                                                                 ButtonDefaults.buttonColors(
                                                                         containerColor =
-                                                                                Color(0xFF0D47A1)
+                                                                                MuniColors.primaryBlue
                                                                 )
                                                 ) { Text("Reintentar") }
                                         }
@@ -89,31 +108,16 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                         is ManagerEventDetailState.Success -> {
                                 val eventDetail = currentState.eventDetail
 
-                                Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+                                Column(modifier = Modifier.fillMaxSize().background(MuniColors.surfaceCard)) {
 
                                         Row(
                                                 modifier =
                                                         Modifier.fillMaxWidth()
-                                                                .background(
-                                                                        Brush.horizontalGradient(
-                                                                                colors =
-                                                                                        listOf(
-                                                                                                Color(
-                                                                                                        0xFF001F5C
-                                                                                                ),
-                                                                                                Color(
-                                                                                                        0xFF023075
-                                                                                                ),
-                                                                                                Color(
-                                                                                                        0xFF0D47A1
-                                                                                                )
-                                                                                        )
-                                                                        )
-                                                                )
+                                                                .background(MuniGradients.header)
                                                                 .statusBarsPadding()
                                                                 .padding(
-                                                                        horizontal = 20.dp,
-                                                                        vertical = 12.dp
+                                                                        horizontal = MuniSpacing.lg,
+                                                                        vertical = MuniSpacing.sm
                                                                 ),
                                                 verticalAlignment = Alignment.CenterVertically
                                         ) {
@@ -128,31 +132,11 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 }
                                                 )
 
-                                                Spacer(modifier = Modifier.width(16.dp))
+                                                Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
-                                                Image(
-                                                        painter =
-                                                                painterResource(
-                                                                        Res.drawable.logo_muni_arica
-                                                                ),
-                                                        contentDescription = "Logo",
-                                                        modifier =
-                                                                Modifier.size(48.dp)
-                                                                        .clip(
-                                                                                RoundedCornerShape(
-                                                                                        8.dp
-                                                                                )
-                                                                        )
-                                                                        .background(
-                                                                                Color.White.copy(
-                                                                                        alpha = 0.1f
-                                                                                )
-                                                                        )
-                                                                        .padding(4.dp),
-                                                        contentScale = ContentScale.Fit
-                                                )
+                                                MuniTopBarLogo()
 
-                                                Spacer(modifier = Modifier.width(16.dp))
+                                                Spacer(modifier = Modifier.width(MuniSpacing.lg))
 
                                                 Column {
                                                         Text(
@@ -161,8 +145,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 fontWeight = FontWeight.Bold,
                                                                 style =
                                                                         MaterialTheme.typography
-                                                                                .titleLarge,
-                                                                fontSize = 22.sp
+                                                                                .titleLarge
                                                         )
                                                         Text(
                                                                 text = "Gestión de asistentes",
@@ -172,8 +155,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                         ),
                                                                 style =
                                                                         MaterialTheme.typography
-                                                                                .bodySmall,
-                                                                fontSize = 12.sp
+                                                                                .bodySmall
                                                         )
                                                 }
                                         }
@@ -225,7 +207,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 style =
                                                                         MaterialTheme.typography
                                                                                 .titleLarge,
-                                                                color = Color(0xFF0D47A1),
+                                                                color = MuniColors.gradientBlue,
                                                                 fontWeight = FontWeight.Black
                                                         )
 
@@ -236,7 +218,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 style =
                                                                         MaterialTheme.typography
                                                                                 .labelLarge,
-                                                                color = Color(0xFF0277BD),
+                                                                color = MuniColors.badgeBlueText,
                                                                 fontWeight = FontWeight.Bold
                                                         )
 
@@ -249,7 +231,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 Icon(
                                                                         Icons.Default.LocationOn,
                                                                         null,
-                                                                        tint = Color(0xFF00BCD4),
+                                                                        tint = MuniColors.secondaryCyan,
                                                                         modifier =
                                                                                 Modifier.size(20.dp)
                                                                 )
@@ -275,7 +257,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                 Icon(
                                                                         Icons.Default.DateRange,
                                                                         null,
-                                                                        tint = Color(0xFF1976D2),
+                                                                        tint = MuniColors.badgeBlueText,
                                                                         modifier =
                                                                                 Modifier.size(20.dp)
                                                                 )
@@ -484,7 +466,7 @@ data class ManagerEventDetailScreen(val eventId: Int, val managerId: Int) : Scre
                                                                         MaterialTheme.typography
                                                                                 .titleMedium,
                                                                 fontWeight = FontWeight.Bold,
-                                                                color = Color(0xFF1976D2)
+                                                                color = MuniColors.badgeBlueText
                                                         )
 
                                                         Spacer(modifier = Modifier.height(16.dp))
@@ -622,9 +604,9 @@ fun AttendeeCard(
                                         style = MaterialTheme.typography.bodySmall,
                                         color =
                                                 when (attendee.estadoAsistencia.uppercase()) {
-                                                        "PRESENTE" -> Color(0xFF02BB94)
-                                                        "AUSENTE" -> Color(0xFFD32F2F)
-                                                        else -> Color(0xFFFFA726)
+                                                        "PRESENTE" -> MuniColors.accentEmerald
+                                                        "AUSENTE" -> MuniColors.errorRed
+                                                        else -> MuniColors.warningOrange
                                                 },
                                         fontWeight = FontWeight.Medium
                                 )
@@ -636,9 +618,9 @@ fun AttendeeCard(
                                 enabled = !isReadOnly,
                                 colors =
                                         CheckboxDefaults.colors(
-                                                checkedColor = Color(0xFF02BB94),
-                                                disabledCheckedColor =
-                                                        Color(0xFF02BB94).copy(alpha = 0.6f),
+                                                checkedColor = MuniColors.accentEmerald,
+                                                uncheckedColor =
+                                                        MuniColors.accentEmerald.copy(alpha = 0.6f),
                                                 disabledUncheckedColor =
                                                         Color.Gray.copy(alpha = 0.6f)
                                         )

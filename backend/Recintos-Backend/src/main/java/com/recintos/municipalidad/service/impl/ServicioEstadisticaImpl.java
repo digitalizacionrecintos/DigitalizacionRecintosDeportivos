@@ -107,7 +107,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
 
         @Override
         public EstadisticasCursosDTO obtenerEstadisticasCursos(Integer anio) {
-                // Get all courses, filter by year if specified
+                
                 List<Curso> cursos = repositorioCurso.findAll();
                 
                 if (anio != null) {
@@ -117,7 +117,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                                 .collect(Collectors.toList());
                 }
 
-                // Calculate summary statistics
+                
                 int totalCursos = cursos.size();
                 int totalInscritos = cursos.stream()
                         .mapToInt(c -> c.getSesiones() != null ? 
@@ -134,7 +134,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                         Math.round(promedioInscritosPorCurso * 10.0) / 10.0
                 );
 
-                // Get top popular courses
+                
                 List<EstadisticasCursosDTO.CursoPopular> cursosPopulares = cursos.stream()
                         .map(c -> {
                                 int inscritos = c.getSesiones() != null ? 
@@ -143,7 +143,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                                                 .sum() : 0;
                                 int cupoMaximo = c.getCupo() != null ? c.getCupo() : 0;
                                 double porcentaje = cupoMaximo > 0 ? (double) inscritos / cupoMaximo * 100 : 0;
-                                String categoria = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categoría";
+                                String categoria = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categorÃ­a";
                                 
                                 return new EstadisticasCursosDTO.CursoPopular(
                                         c.getNombre(),
@@ -157,7 +157,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                         .limit(10)
                         .collect(Collectors.toList());
 
-                // Calculate occupation rates
+                
                 int llenos = 0;
                 int altaOcupacion = 0;
                 int bajaOcupacion = 0;
@@ -181,11 +181,11 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                         llenos, altaOcupacion, bajaOcupacion
                 );
 
-                // Group by category
+                
                 Map<String, EstadisticasCursosDTO.CategoriaCursos> categoriaMap = new HashMap<>();
                 
                 for (Curso c : cursos) {
-                        String catNombre = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categoría";
+                        String catNombre = c.getCategoria() != null ? c.getCategoria().getNombre() : "Sin categorÃ­a";
                         int inscritos = c.getSesiones() != null ? 
                                 c.getSesiones().stream()
                                         .mapToInt(e -> e.getInscripciones() != null ? e.getInscripciones().size() : 0)
@@ -203,7 +203,7 @@ public class ServicioEstadisticaImpl implements ServicioEstadistica {
                 List<EstadisticasCursosDTO.CategoriaCursos> porCategoria = new ArrayList<>(categoriaMap.values());
                 porCategoria.sort((a, b) -> Integer.compare(b.getInscritos(), a.getInscritos()));
 
-                // Monthly trend
+                
                 Map<String, Integer> tendenciaMap = new LinkedHashMap<>();
                 
                 for (Curso c : cursos) {
